@@ -2,7 +2,7 @@
 using Contractors.Results;
 using Contractors.Dtos;
 
-namespace ContractorsAuctioneer.Interfaces
+namespace Contractors.Interfaces
 {
     public interface IBidStatusService
     {

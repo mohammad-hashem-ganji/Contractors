@@ -2,7 +2,7 @@
 using Contractors.Results;
 
 
-namespace ContractorsAuctioneer.Interfaces
+namespace Contractors.Interfaces
 {
     public interface IRequestStatusService
     {

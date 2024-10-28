@@ -2,7 +2,7 @@
 using Contractors.DbContractorsAuctioneerEF;
 using Contractors.Dtos;
 using Contractors.Entites;
-using ContractorsAuctioneer.Interfaces;
+using Contractors.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContractorsAuctioneer.Services
@@ -15,7 +15,6 @@ namespace ContractorsAuctioneer.Services
         public RequestCheckService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

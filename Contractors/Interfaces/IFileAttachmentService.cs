@@ -2,7 +2,7 @@
 using Contractors.Results;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ContractorsAuctioneer.Interfaces
+namespace Contractors.Interfaces
 {
     public interface IFileAttachmentService
     {
