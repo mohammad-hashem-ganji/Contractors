@@ -181,7 +181,7 @@ namespace Contractors.Services
                     return new Result<UpdateBidOfContractorDto>().WithValue(null).Failure("خطا هنگام تغییر پیشنهاد");
                 }
                 BidOfContractor? bidOfContractor = await _context.BidOfContractors
-                  .Where(x => x.Id == bidOfContractorDto.Id)
+                  .Where(x => x.Id == bidOfContractorDto.BidId)
                   .FirstOrDefaultAsync(cancellationToken);
                 if (bidOfContractor is null)
                 {

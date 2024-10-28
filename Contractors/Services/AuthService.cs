@@ -123,7 +123,7 @@ namespace Contractors.Services
             }
             var claims = new List<Claim>
              {
-                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName ?? string.Empty),
+                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString() ?? string.Empty),
                  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                  //new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString(), ClaimValueTypes.DateTime),
                  new Claim("FirstName", user.UserName ?? string.Empty),

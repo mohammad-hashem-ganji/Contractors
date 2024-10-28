@@ -3,6 +3,7 @@ using Contractors.Entites;
 using Contractors.Interfaces;
 using Contractors.Models;
 using Contractors.Services;
+using ContractorsAuctioneer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<IVerificationService, VerificationService>();
+// Request
+builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddScoped<IRequestStatusService, RequestStatusService>();
+builder.Services.AddSingleton<IHostedService, RequestCheckService>();
+// Client
+builder.Services.AddScoped<IClientService, ClientService>();
+// Region
+builder.Services.AddScoped<IRegionService, RegionService>();
+// Contractor
+builder.Services.AddScoped<IContractorService, ContractorService>();
+// BidOfContractor
+builder.Services.AddScoped<IBidOfContractorService, BidOfContractorService>();
+builder.Services.AddScoped<IBidStatusService, BidStatusService>();
+builder.Services.AddSingleton<IHostedService, BidOfContractorCheckService>();
+
+// Project
+builder.Services.AddScoped<IProjectService, ProjectService>();
+// FileAttachment
+builder.Services.AddScoped<IFileAttachmentService, FileAttachmentService>();
+// LoginHistory
+builder.Services.AddTransient<ILastLoginHistoryService, LastLoginHistoryService>();
+// Reject
+builder.Services.AddTransient<IRejectService, RejectService>();
+//----------------------------------------------------------------
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

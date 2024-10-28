@@ -5,7 +5,6 @@ using Contractors.Entites;
 using Contractors.Interfaces;
 using Contractors.Results;
 using Contractors.Utilities.Constants;
-using ContractorsAuctioneer.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography.Xml;

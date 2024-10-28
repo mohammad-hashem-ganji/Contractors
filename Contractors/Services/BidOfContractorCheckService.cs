@@ -4,7 +4,6 @@ using Contractors.DbContractorsAuctioneerEF;
 using Contractors.Dtos;
 using Contractors.Entites;
 using Contractors.Interfaces;
-using ContractorsAuctioneer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Contracts;
 

@@ -50,7 +50,7 @@ namespace Contractors.Services
             }
             try
             {
-              
+
                 var applicationUserResult = await _authService.RegisterAsync(requestDto.NCode, requestDto.PhoneNumber, role);
                 if (applicationUserResult.Data.RegisteredUserId == 0)
                 {
@@ -172,7 +172,7 @@ namespace Contractors.Services
                 {
                     return new Result<RequestDto>().WithValue(null).Failure(ErrorMessages.RequestNotFound);
                 }
-               
+
                 var requestDto = new RequestDto
                 {
                     Id = request.Id,
@@ -198,7 +198,7 @@ namespace Contractors.Services
 
                 return new Result<RequestDto>().WithValue(requestDto).Success(SuccessMessages.Regionfound);
             }
-            catch (Exception )
+            catch (Exception)
             {
                 return new Result<RequestDto>().WithValue(null).Failure("خطا!");
             }
@@ -207,8 +207,8 @@ namespace Contractors.Services
         {
             try
             {
-                
-                var user =  await UserManagement.GetRoleBaseUserId(_httpContextAccessor.HttpContext, _context );
+
+                var user = await UserManagement.GetRoleBaseUserId(_httpContextAccessor.HttpContext, _context);
 
                 if (!user.IsSuccessful)
                 {
@@ -216,14 +216,14 @@ namespace Contractors.Services
                 }
                 var clientId = user.Data.UserId;
 
-                var appId = int.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),out int appUserId);
+                var appId = int.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out int appUserId);
                 if (!appId)
                 {
                     return new Result<RequestDto>().WithValue(null).Failure("خطا");
                 }
                 var requestResult = await _context.Requests
                    .Where(x =>
-                   x.ClientId == clientId 
+                   x.ClientId == clientId
                    && x.IsTenderOver == false && x.IsActive == true
                    )
                    .Include(x => x.Client)
@@ -268,10 +268,10 @@ namespace Contractors.Services
                    }).FirstOrDefaultAsync(cancellationToken);
                 var requestStatusResult = await _context.RequestStatuses.Where(rs => rs.CreatedBy == appUserId).ToListAsync(cancellationToken);
                 if (requestResult is not null)
-                {                   
+                {
                     if (requestResult.ExpireAt > DateTime.Now)
                     {
-                        if (requestResult.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient 
+                        if (requestResult.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient
                                                                  || rs.Status == RequestStatusEnum.RequestRejectedByClient))
                         {
                             return new Result<RequestDto>().WithValue(requestResult).Success("درخواست  قبلا بررسی شده است.");
@@ -290,7 +290,7 @@ namespace Contractors.Services
             }
             catch (Exception)
             {
-                return new Result<RequestDto>().WithValue(null).Failure("خطا"); 
+                return new Result<RequestDto>().WithValue(null).Failure("خطا");
             }
 
         }
@@ -361,17 +361,14 @@ namespace Contractors.Services
                 var requestStatusResult = await _context.RequestStatuses.Where(rs => rs.CreatedBy == appUserId).ToListAsync(cancellationToken);
                 if (requestResult is not null)
                 {
-
-                        if (requestResult.RequestStatuses.Any(rs => rs.Status != RequestStatusEnum.RequestRejectedByClient))
-                        {
-                            return new Result<RequestDto>().WithValue(requestResult).Success("درخواست پیدا شد.");
-                        }
-                        else
-                        {
-                            return new Result<RequestDto>().WithValue(null).Success("درخواست پیدا نشد.");
-                        }
-                    
-
+                    if (requestResult.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestRejectedByClient))
+                    {
+                        return new Result<RequestDto>().WithValue(null).Success("درخواست قبلا رد شده است.");
+                    }
+                    else
+                    {
+                        return new Result<RequestDto>().WithValue(requestResult).Success("درخواست پیدا شد.");
+                    }
                 }
                 return new Result<RequestDto>().WithValue(requestResult).Success("درخواست  پیدا نشد.");
             }
@@ -396,9 +393,9 @@ namespace Contractors.Services
 
 
                 var requests = await _context.Requests
-                      .Where(r => 
+                      .Where(r =>
                       r.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient &&
-                                                  rs.Status != RequestStatusEnum.RequestRejectedByContractor ))
+                                                  rs.Status != RequestStatusEnum.RequestRejectedByContractor))
                       .Select(r => new RequestDto
                       {
                           Id = r.Id,
@@ -485,9 +482,9 @@ namespace Contractors.Services
 
         }
 
-       
-            
 
-        
+
+
+
     }
 }
