@@ -167,8 +167,12 @@ namespace ContractorsAuctioneer.Controllers
                 {
                     return Problem(requestDto.Message);
                 }
-                requestDto.Data.ExpireAt = DateTime.Now.AddMinutes(7);
-                var requestResult = await _requestService.UpdateAsync(requestDto.Data, cancellationToken);
+               
+                var updateRequestDto = new UpdateRequestDto
+                {
+                    ExpireAt = DateTime.Now.AddMinutes(7),   
+                };
+                var requestResult = await _requestService.UpdateAsync(updateRequestDto, cancellationToken);
                 if (!requestResult.IsSuccessful)
                 {
                     return Problem(requestResult.Message);

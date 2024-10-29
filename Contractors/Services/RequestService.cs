@@ -131,14 +131,10 @@ namespace Contractors.Services
                     RegistrationDate = x.RegistrationDate,
                     ConfirmationDate = x.ConfirmationDate,
                     ClientId = x.ClientId,
-                    RegionId = x.RegionId,
+                    RegionTitle = x.Region.Title
 
-                    FileAttachments = x.FileAttachments
-                    .Where(f => f.IsDeleted == false)
-                    .Select(f => new FileAttachmentDto
-                    {
-                        Id = f.Id
-                    }).ToList()
+
+
                 }).ToList();
                 if (requestDtos.Any())
                 {
@@ -181,19 +177,9 @@ namespace Contractors.Services
                     RegistrationDate = request.RegistrationDate,
                     ConfirmationDate = request.ConfirmationDate,
                     ClientId = request.ClientId,
-                    RegionId = request.RegionId,
+                    RegionTitle = request.Region.Title
 
-                    RequestStatuses = request.RequestStatuses.Select(rs => new RequestStatusDto
-                    {
-                        Id = rs.Id,
-                        Status = rs.Status,
 
-                    }).ToList(),
-                    FileAttachments = request.FileAttachments.Select(f => new FileAttachmentDto
-                    {
-                        Id = f.Id,
-
-                    }).ToList()
                 };
 
                 return new Result<RequestDto>().WithValue(requestDto).Success(SuccessMessages.Regionfound);
@@ -247,27 +233,10 @@ namespace Contractors.Services
                        IsAcceptedByClient = x.IsAcceptedByClient,
                        IsTenderOver = x.IsTenderOver,
                        ClientId = x.ClientId,
-                       RegionId = x.RegionId,
+                       RegionTitle = x.Region.Title,
                        RequestNumber = x.RequestNumber,
 
-                       RequestStatuses = x.RequestStatuses.Select(rs => new RequestStatusDto
-                       {
-                           Id = rs.Id,
-                           Status = rs.Status,
 
-                       }).ToList(),
-                       BidOfContractors = x.BidOfContractors.Select(b => new BidOfContractorDto
-                       {
-                           Id = b.Id,
-                           SuggestedFee = b.SuggestedFee,
-                           ContractorId = b.ContractorId,
-                           CreatedAt = b.CreatedAt,
-                       }).ToList(),
-                       FileAttachments = x.FileAttachments.Select(f => new FileAttachmentDto
-                       {
-                           Id = f.Id,
-
-                       }).ToList()
 
                    }).FirstOrDefaultAsync(cancellationToken);
                 var requestStatusResult = await _context.RequestStatuses.Where(rs => rs.CreatedBy == appUserId).ToListAsync(cancellationToken);
@@ -275,7 +244,7 @@ namespace Contractors.Services
                 {
                     if (requestResult.ExpireAt > DateTime.Now)
                     {
-                        if (requestResult.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient
+                        if (requestStatusResult.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient
                                                                  || rs.Status == RequestStatusEnum.RequestRejectedByClient))
                         {
                             return new Result<RequestDto>().WithValue(requestResult).Success("درخواست  قبلا بررسی شده است.");
@@ -299,7 +268,7 @@ namespace Contractors.Services
 
         }
 
-        public async Task<Result<RequestDto>> GetRequestOfClientAsync(CancellationToken cancellationToken)
+        public async Task<Result<GetRequestDto>> GetRequestOfClientAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -308,14 +277,14 @@ namespace Contractors.Services
 
                 if (!user.IsSuccessful)
                 {
-                    return new Result<RequestDto>().WithValue(null).Failure("خطا");
+                    return new Result<GetRequestDto>().WithValue(null).Failure("خطا");
                 }
                 var clientId = user.Data.UserId;
 
                 var isconverted = int.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out int appUserId);
                 if (!isconverted)
                 {
-                    return new Result<RequestDto>().WithValue(null).Failure("خطا");
+                    return new Result<GetRequestDto>().WithValue(null).Failure("خطا");
                 }
                 var requestResult = await _context.Requests
                    .Where(x =>
@@ -327,58 +296,42 @@ namespace Contractors.Services
                    .Include(x => x.RequestStatuses)
                    .Include(x => x.FileAttachments)
                    .Include(x => x.BidOfContractors)
-                   .Select(x => new RequestDto
+                   .Select(x => new GetRequestDto
                    {
                        Id = x.Id,
                        Title = x.Title,
                        Description = x.Description,
                        RegistrationDate = x.RegistrationDate,
                        ConfirmationDate = x.ConfirmationDate,
-                       IsActive = x.IsActive,
                        ExpireAt = x.ExpireAt,
                        IsAcceptedByClient = x.IsAcceptedByClient,
-                       IsTenderOver = x.IsTenderOver,
                        ClientId = x.ClientId,
-                       RegionId = x.RegionId,
                        RequestNumber = x.RequestNumber,
+                       RegionTitle = x.Region.Title,
+                       RequestStatusEnum = x.RequestStatuses
+                       .OrderByDescending(rs => rs.CreatedAt)
+                       .Select(rs => rs.Status)
+                       .FirstOrDefault().Value
 
-                       RequestStatuses = x.RequestStatuses.Select(rs => new RequestStatusDto
-                       {
-                           Id = rs.Id,
-                           Status = rs.Status,
-
-                       }).ToList(),
-                       BidOfContractors = x.BidOfContractors.Select(b => new BidOfContractorDto
-                       {
-                           Id = b.Id,
-                           SuggestedFee = b.SuggestedFee,
-                           ContractorId = b.ContractorId,
-                           CreatedAt = b.CreatedAt,
-                       }).ToList(),
-                       FileAttachments = x.FileAttachments.Select(f => new FileAttachmentDto
-                       {
-                           Id = f.Id,
-
-                       }).ToList()
 
                    }).FirstOrDefaultAsync(cancellationToken);
                 var requestStatusResult = await _context.RequestStatuses.Where(rs => rs.CreatedBy == appUserId).ToListAsync(cancellationToken);
                 if (requestResult is not null)
                 {
-                    if (requestResult.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestRejectedByClient))
+                    if (requestStatusResult.Any(rs => rs.Status == RequestStatusEnum.RequestRejectedByClient))
                     {
-                        return new Result<RequestDto>().WithValue(null).Success("درخواست قبلا رد شده است.");
+                        return new Result<GetRequestDto>().WithValue(null).Success("درخواست قبلا رد شده است.");
                     }
                     else
                     {
-                        return new Result<RequestDto>().WithValue(requestResult).Success("درخواست پیدا شد.");
+                        return new Result<GetRequestDto>().WithValue(requestResult).Success("درخواست پیدا شد.");
                     }
                 }
-                return new Result<RequestDto>().WithValue(requestResult).Success("درخواست  پیدا نشد.");
+                return new Result<GetRequestDto>().WithValue(requestResult).Success("درخواست  پیدا نشد.");
             }
             catch (Exception)
             {
-                return new Result<RequestDto>().WithValue(null).Failure("خطا");
+                return new Result<GetRequestDto>().WithValue(null).Failure("خطا");
             }
 
         }
@@ -410,22 +363,15 @@ namespace Contractors.Services
                           ConfirmationDate = r.ConfirmationDate,
                           ExpireAt = r.ExpireAt,
                           ClientId = r.ClientId,
-                          RegionId = r.RegionId,
+                          RegionTitle = r.Region.Title,
                           IsTenderOver = r.IsTenderOver,
                           IsActive = r.IsActive,
                           IsAcceptedByClient = r.IsAcceptedByClient,
                           CreatedAt = r.CreatedAt,
-                          UpdatedAt = r.UpdatedAt,
-                          RequestStatuses = r.RequestStatuses.Select(rs => new RequestStatusDto
-                          {
-                              Status = rs.Status,
-                              CreatedAt = rs.CreatedAt,
-                              CreatedBy = rs.CreatedBy,
-                              Id = rs.Id,
-                              RequestId = rs.RequestId
-                          }).ToList(),
-                          Region = r.Region.Title
-                          
+
+
+
+
                       }).ToListAsync(cancellationToken);
 
                 if (requests.Any())
@@ -451,7 +397,7 @@ namespace Contractors.Services
         }
 
 
-        public async Task<Result<RequestDto>> UpdateAsync(RequestDto requestDto, CancellationToken cancellationToken)
+        public async Task<Result<UpdateRequestDto>> UpdateAsync(UpdateRequestDto requestDto, CancellationToken cancellationToken)
         {
             try
             {
@@ -461,26 +407,39 @@ namespace Contractors.Services
                 .FirstOrDefaultAsync(cancellationToken);
                 if (request is null)
                 {
-                    return new Result<RequestDto>().WithValue(null).Failure(ErrorMessages.RequestNotFound);
+                    return new Result<UpdateRequestDto>().WithValue(null).Failure(ErrorMessages.RequestNotFound);
                 }
-                request.Title = requestDto.Title;
-                request.RequestNumber = requestDto.RequestNumber;
-                request.RegistrationDate = requestDto.RegistrationDate;
-                request.ConfirmationDate = request.ConfirmationDate;
-                request.Description = requestDto.Description;
-                request.IsAcceptedByClient = requestDto.IsAcceptedByClient;
-                request.ExpireAt = requestDto.ExpireAt;
-                request.IsTenderOver = requestDto.IsTenderOver;
-                request.IsActive = requestDto.IsActive;
+
+
+                if (requestDto.IsAcceptedByClient.HasValue)
+                {
+
+                    request.IsAcceptedByClient = requestDto.IsAcceptedByClient;
+                }
+                if (requestDto.ExpireAt.HasValue)
+                {
+
+                    request.ExpireAt = requestDto.ExpireAt;
+                }
+                if (requestDto.IsTenderOver.HasValue)
+                {
+
+                    request.IsTenderOver = requestDto.IsTenderOver;
+                }
+                if (requestDto.IsActive.HasValue)
+                {
+
+                    request.IsActive = requestDto.IsActive;
+                }
                 request.UpdatedAt = DateTime.Now;
                 //request.UpdatedBy = requestDto.UpdatedBy;
                 _context.Requests.Update(request);
                 await _context.SaveChangesAsync(cancellationToken);
-                return new Result<RequestDto>().WithValue(requestDto).Success("درخواست آپدیت شد");
+                return new Result<UpdateRequestDto>().WithValue(requestDto).Success("درخواست آپدیت شد");
             }
             catch (Exception ex)
             {
-                return new Result<RequestDto>().WithValue(null).Failure(ex.Message);
+                return new Result<UpdateRequestDto>().WithValue(null).Failure(ex.Message);
             }
 
 

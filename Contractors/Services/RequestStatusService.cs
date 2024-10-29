@@ -143,9 +143,9 @@ namespace Contractors.Services
                         CreatedBy = r.CreatedBy,
                         CreatedAt = r.CreatedAt
                     }).ToListAsync(cancellationToken);
-                if (result is null) return new Result<List<RequestStatusDto>>()
+                if (result.Count == 0) return new Result<List<RequestStatusDto>>()
                         .WithValue(null)
-                        .Failure(ErrorMessages.RequestStatusNotFound);
+                        .Success(ErrorMessages.RequestStatusNotFound);
                 else return new Result<List<RequestStatusDto>>()
                         .WithValue(result)
                         .Success(SuccessMessages.RequestStatusFound);

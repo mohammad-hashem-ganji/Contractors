@@ -12,13 +12,16 @@ namespace ContractorsAuctioneer.Controllers
     {
         private readonly IRequestService _requestService;
         private readonly IProjectService _projectService;
+        private readonly IBidOfContractorService _bidOfContractorService;
 
-        public RequestController(IRequestService requestService, IProjectService projectService)
+
+        public RequestController(IRequestService requestService, IProjectService projectService, IBidOfContractorService bidOfContractorService)
         {
             _requestService = requestService;
             _projectService = projectService;
+            _bidOfContractorService = bidOfContractorService;
         }
-        
+
         [HttpPost]
         [Route(nameof(AddRequest))]
         public async Task<IActionResult> AddRequest([FromBody] AddRequestDto requestDto, CancellationToken cancellationToken)
@@ -74,7 +77,17 @@ namespace ContractorsAuctioneer.Controllers
             }
         }
 
-
-
+        [Authorize(Roles = "Client")]
+        [HttpGet]
+        [Route(nameof(GetBidsOfRequest))]
+        public async Task<IActionResult> GetBidsOfRequest(int requestId, CancellationToken cancellationToken)
+        {
+            var bids = await _bidOfContractorService.GetBidsOfRequestAsync(requestId, cancellationToken);
+            if (bids.Data is null)
+            {
+                return BadRequest(bids);
+            }
+            return Ok(bids);
+        }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Contractors.Dtos
 {
-    public class RequestDto : BaseGetAuditaleDto
+    public class GetRequestDto
     {
         public int Id { get; set; }
         public string? RequestNumber { get; set; }
@@ -12,12 +12,8 @@ namespace Contractors.Dtos
         public DateTime? ConfirmationDate { get; set; }
         public DateTime? ExpireAt { get; set; }
         public int ClientId { get; set; }
-        public bool? IsActive { get; set; }
-        public bool? IsTenderOver { get; set; }
         public bool? IsAcceptedByClient { get; set; }
         public string? RegionTitle { get; set; }
-
-
-
+        public RequestStatusEnum RequestStatusEnum { get; set; }
     }
 }

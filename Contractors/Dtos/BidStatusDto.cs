@@ -7,5 +7,6 @@ namespace Contractors.Dtos
     {
         public int BidOfContractorId { get; set; }
         public BidStatusEnum Status { get; set; }
+        public int CreatedBy { get; set; }
     }
 }

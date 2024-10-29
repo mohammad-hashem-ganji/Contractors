@@ -112,12 +112,12 @@ namespace Contractors.Controllers
         /// <returns>در صورت موفقیت، هیچ محتوایی بازگشت نمی‌دهد.</returns>
         [Authorize(Roles = "Client")]
         [HttpPut]
-        [Route(nameof(ClientRequestStatus))]
+        [Route(nameof(ChangeRequestStatus))]
         [ProducesResponseType(StatusCodes.Status204NoContent)] // No content on successful acceptance
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ClientRequestStatus([FromBody] UpdateRequestAcceptanceDto requestDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> ChangeRequestStatus([FromBody] UpdateRequestAcceptanceDto requestDto, CancellationToken cancellationToken)
         {
             var newStatus = new AddRequestStatusDto();
             var newRequestStatus = new Result<AddRequestStatusDto>();
@@ -137,10 +137,7 @@ namespace Contractors.Controllers
                 return Problem(detail: request.ErrorMessage, statusCode: 500, title: "Bad Request");
             }
             if (requestDto.RequestId != request.Data.Id && request.Data.IsActive == false) return NotFound(request);
-            //if (request.Data.RequestStatuses != null && request.Data.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient))
-            //{
-            //    return Problem(detail: "درخواست قبلا تایید شده!", statusCode: 500, title: "Bad Request");
-            //}
+
             if (requestDto.IsAccepted == true)
             {
                 newStatus = new AddRequestStatusDto
@@ -151,9 +148,14 @@ namespace Contractors.Controllers
 
                 newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: "Internal Server Error");
-                request.Data.IsActive = true;
-                request.Data.ExpireAt = DateTime.Now.AddMinutes(7);
-                var updateResult = await _requestService.UpdateAsync(request.Data, cancellationToken);
+
+                var updateRequestDto = new UpdateRequestDto
+                {
+                    IsActive = true,
+                    ExpireAt = DateTime.Now.AddMinutes(7),
+                    IsAcceptedByClient = true
+                };
+                var updateResult = await _requestService.UpdateAsync(updateRequestDto, cancellationToken);
                 if (!updateResult.IsSuccessful)
                 {
                     return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: "Internal Server Error");
@@ -168,13 +170,17 @@ namespace Contractors.Controllers
                     RequestId = requestDto.RequestId,
                     Status = Entites.RequestStatusEnum.RequestRejectedByClient
                 };
-                request.Data.IsActive = false;
-
-                request.Data.ExpireAt = null;
+ 
                 newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage,
                     statusCode: 400, title: "Bad Request");
-                var updateResult = await _requestService.UpdateAsync(request.Data, cancellationToken);
+                var updateRequestDto = new UpdateRequestDto
+                {
+                    IsActive = false,
+                    ExpireAt = null,
+                    IsAcceptedByClient = false
+                };
+                var updateResult = await _requestService.UpdateAsync(updateRequestDto, cancellationToken);
                 if (!updateResult.IsSuccessful)
                 {
                     return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: "Internal Server Error");
