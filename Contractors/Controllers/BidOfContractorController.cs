@@ -101,7 +101,7 @@ namespace ContractorsAuctioneer.Controllers
                 var entity = await _bidOfContractorService.GetByIdAsync(bidDto.BidId, cancellationToken);
                 if (entity is { IsSuccessful: true, Data: not null })
                 {
-                    entity.Data.IsDeleted = true;
+                  
                     var updatecontract = new UpdateBidOfContractorDto
                     {
                         BidId = entity.Data.Id,
@@ -141,7 +141,7 @@ namespace ContractorsAuctioneer.Controllers
                 var entity = await _bidOfContractorService.GetByIdAsync(bidId, cancellationToken);
                 if (entity is { IsSuccessful: true, Data: not null })
                 {
-                    entity.Data.IsDeleted = true;
+                    
                     var updatecontract = new UpdateBidOfContractorDto
                     {
                         BidId = entity.Data.Id,
