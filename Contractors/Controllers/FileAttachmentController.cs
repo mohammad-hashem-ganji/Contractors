@@ -1,4 +1,5 @@
 ﻿using Contractors.Dtos;
+using Contractors.Entites;
 using Contractors.Interfaces;
 using Contractors.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -42,5 +43,10 @@ namespace ContractorsAuctioneer.Controllers
             }
             return BadRequest(file);
         }
+        //public async Task<IActionResult> DonlowdByRequestId(int requestId, int fileTypeId, CancellationToken cancellationToken)
+        //{
+
+        //}
+
     }
 }

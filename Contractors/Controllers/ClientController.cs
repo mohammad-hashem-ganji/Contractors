@@ -112,12 +112,12 @@ namespace Contractors.Controllers
         /// <returns>در صورت موفقیت، هیچ محتوایی بازگشت نمی‌دهد.</returns>
         [Authorize(Roles = "Client")]
         [HttpPut]
-        [Route(nameof(ClientRequestStatusController))]
+        [Route(nameof(ClientRequestStatus))]
         [ProducesResponseType(StatusCodes.Status204NoContent)] // No content on successful acceptance
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ClientRequestStatusController([FromBody] UpdateRequestAcceptanceDto requestDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> ClientRequestStatus([FromBody] UpdateRequestAcceptanceDto requestDto, CancellationToken cancellationToken)
         {
             var newStatus = new AddRequestStatusDto();
             var newRequestStatus = new Result<AddRequestStatusDto>();

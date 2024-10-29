@@ -12,7 +12,14 @@ namespace Contractors.Entites
         public int Id { get; set; }
         public int RequestId { get; set; }
         public Request? Request { get; set; }
-        public RequestStatusEnum? Status { get; set; }
+        public int StatusId { get; set; }
+
+        // Computed property to expose Status as an enum
+        public RequestStatusEnum? Status
+        {
+            get => (RequestStatusEnum)StatusId;
+            set => StatusId = (int)value;
+        }
 
     }
 }
