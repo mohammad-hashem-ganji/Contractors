@@ -112,13 +112,15 @@ namespace Contractors.Controllers
         /// <returns>در صورت موفقیت، هیچ محتوایی بازگشت نمی‌دهد.</returns>
         [Authorize(Roles = "Client")]
         [HttpPut]
-        [Route(nameof(AcceptRequestByClient))]
+        [Route(nameof(ClientRequestStatusController))]
         [ProducesResponseType(StatusCodes.Status204NoContent)] // No content on successful acceptance
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AcceptRequestByClient([FromBody] UpdateRequestAcceptanceDto requestDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> ClientRequestStatusController([FromBody] UpdateRequestAcceptanceDto requestDto, CancellationToken cancellationToken)
         {
+            var newStatus = new AddRequestStatusDto();
+            var newRequestStatus = new Result<AddRequestStatusDto>();
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -135,19 +137,19 @@ namespace Contractors.Controllers
                 return Problem(detail: request.ErrorMessage, statusCode: 500, title: "Bad Request");
             }
             if (requestDto.RequestId != request.Data.Id && request.Data.IsActive == false) return NotFound(request);
-            if (request.Data.RequestStatuses != null && request.Data.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient))
-            {
-                return Problem(detail: "درخواست قبلا تایید شده!", statusCode: 500, title: "Bad Request");
-            }
+            //if (request.Data.RequestStatuses != null && request.Data.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient))
+            //{
+            //    return Problem(detail: "درخواست قبلا تایید شده!", statusCode: 500, title: "Bad Request");
+            //}
             if (requestDto.IsAccepted == true)
             {
-                var newStatus = new AddRequestStatusDto
+                newStatus = new AddRequestStatusDto
                 {
                     RequestId = request.Data.Id,
                     Status = Entites.RequestStatusEnum.RequestApprovedByClient
                 };
 
-                var newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
+                newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: "Internal Server Error");
 
                 request.Data.ExpireAt = DateTime.Now.AddMinutes(7);
@@ -159,8 +161,20 @@ namespace Contractors.Controllers
 
                 return Ok();
             }
-
-            return Problem(detail: "خطا!", statusCode: 400, title: "Bad Request");
+            else
+            {
+                newStatus = new AddRequestStatusDto
+                {
+                    RequestId = requestDto.RequestId,
+                    Status = Entites.RequestStatusEnum.RequestRejectedByClient
+                };
+                newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
+                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage,
+                    statusCode: 400, title: "Bad Request");
+                return Ok();
+            }
+            
+            //return Problem(detail: "خطا!", statusCode: 400, title: "Bad Request");
         }
 
         /// <summary>
@@ -169,36 +183,38 @@ namespace Contractors.Controllers
         /// <param name="requestDto">مدل اطلاعات درخواست برای رد.</param>
         /// <param name="cancellationToken">توکن برای لغو درخواست در صورت نیاز.</param>
         /// <returns>در صورت موفقیت، هیچ محتوایی بازگشت نمی‌دهد.</returns>
-        [Authorize(Roles = "Client")]
-        [HttpPut]
-        [Route(nameof(RejectingRequestByClient))]
-        [ProducesResponseType(StatusCodes.Status204NoContent)] // No content on successful rejection
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> RejectingRequestByClient([FromBody] UpdateRequestAcceptanceDto requestDto, CancellationToken cancellationToken)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[Authorize(Roles = "Client")]
+        //[HttpPut]
+        //[Route(nameof(RejectingRequestByClient))]
+        //[ProducesResponseType(StatusCodes.Status204NoContent)] // No content on successful rejection
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //public async Task<IActionResult> RejectingRequestByClient([FromBody] UpdateRequestAcceptanceDto requestDto, CancellationToken cancellationToken)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var request = await _requestService.CheckRequestOfClientAsync(cancellationToken);
-            if (!request.IsSuccessful || request.Data == null) return Problem(detail: request.ErrorMessage, statusCode: 400, title: "Bad Request");
-            if (requestDto.IsAccepted == false)
-            {
-                var newStatus = new AddRequestStatusDto
-                {
-                    RequestId = requestDto.RequestId,
-                    Status = Entites.RequestStatusEnum.RequestRejectedByClient
-                };
-                var newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
-                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 400, title: "Bad Request");
-                return Ok();
-            }
+        //    var request = await _requestService.CheckRequestOfClientAsync(cancellationToken);
+        //    if (!request.IsSuccessful || request.Data == null) return Problem(detail: request.ErrorMessage,
+        //        statusCode: 400, title: "Bad Request");
+        //    if (requestDto.IsAccepted == false)
+        //    {
+        //        var newStatus = new AddRequestStatusDto
+        //        {
+        //            RequestId = requestDto.RequestId,
+        //            Status = Entites.RequestStatusEnum.RequestRejectedByClient
+        //        };
+        //        var newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
+        //        if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage,
+        //            statusCode: 400, title: "Bad Request");
+        //        return Ok();
+        //    }
 
-            return BadRequest("مقادیر ورودی نا معتبر است");
-        }
+        //    return BadRequest("مقادیر ورودی نا معتبر است");
+        //}
 
         /// <summary>
         /// دریافت پیشنهادات مرتبط با درخواست مشتری.
