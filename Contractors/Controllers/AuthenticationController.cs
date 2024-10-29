@@ -53,7 +53,7 @@ namespace Contractors.Controllers
                 return Unauthorized();
             }
 
-            return Ok(new { Token = token.Data });
+            return Ok(token);
         }
     }
 }
