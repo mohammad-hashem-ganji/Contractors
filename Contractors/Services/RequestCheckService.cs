@@ -89,7 +89,7 @@ namespace ContractorsAuctioneer.Services
                     {
                         request.IsActive = true;
 
-                        request.ExpireAt = null;
+                        
                         var tenderOver = await requestStatusService
                             .AddAsync(new AddRequestStatusDto
                             {

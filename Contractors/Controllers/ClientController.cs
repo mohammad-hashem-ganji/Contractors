@@ -151,7 +151,7 @@ namespace Contractors.Controllers
 
                 newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: "Internal Server Error");
-
+                request.Data.IsActive = true;
                 request.Data.ExpireAt = DateTime.Now.AddMinutes(7);
                 var updateResult = await _requestService.UpdateAsync(request.Data, cancellationToken);
                 if (!updateResult.IsSuccessful)
@@ -168,9 +168,17 @@ namespace Contractors.Controllers
                     RequestId = requestDto.RequestId,
                     Status = Entites.RequestStatusEnum.RequestRejectedByClient
                 };
+                request.Data.IsActive = false;
+
+                request.Data.ExpireAt = null;
                 newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage,
                     statusCode: 400, title: "Bad Request");
+                var updateResult = await _requestService.UpdateAsync(request.Data, cancellationToken);
+                if (!updateResult.IsSuccessful)
+                {
+                    return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: "Internal Server Error");
+                }
                 return Ok();
             }
             
