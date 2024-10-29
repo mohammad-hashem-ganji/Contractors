@@ -2,7 +2,7 @@
 
 namespace Contractors.Dtos
 {
-    public class RequestDto 
+    public class RequestDto : BaseGetAuditaleDto
     {
         public int Id { get; set; }
         public string RequestNumber { get; set; }
@@ -19,6 +19,8 @@ namespace Contractors.Dtos
         public ICollection<RequestStatusDto>? RequestStatuses { get; set; }
         public ICollection<BidOfContractorDto>? BidOfContractors { get; set; }
         public ICollection<FileAttachmentDto>? FileAttachments { get; set; }
+        public string? Region { get; set; }
+
 
 
     }

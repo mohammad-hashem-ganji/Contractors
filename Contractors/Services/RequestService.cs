@@ -410,6 +410,8 @@ namespace Contractors.Services
                           IsTenderOver = r.IsTenderOver,
                           IsActive = r.IsActive,
                           IsAcceptedByClient = r.IsAcceptedByClient,
+                          CreatedAt = r.CreatedAt,
+                          UpdatedAt = r.UpdatedAt,
                           RequestStatuses = r.RequestStatuses.Select(rs => new RequestStatusDto
                           {
                               Status = rs.Status,
@@ -418,6 +420,8 @@ namespace Contractors.Services
                               Id = rs.Id,
                               RequestId = rs.RequestId
                           }).ToList(),
+                          Region = r.Region.Title
+                          
                       }).ToListAsync(cancellationToken);
 
                 if (requests.Any())
