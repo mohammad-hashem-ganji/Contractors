@@ -49,7 +49,7 @@ namespace Contractors.Services
                 {
                     VerificationCode = token,
                     PhoneNumber = user.PhoneNumber,
-                    Ncode = userName
+                    NationalCode = userName
                 };
                 //await SendSmsAsync(phoneNumber, $"کد: {token}", cancellationToken);
                 return new Result<GetVerificationCodeDto>()
@@ -61,7 +61,7 @@ namespace Contractors.Services
         public async Task<Result<string>> VerifyCodeAsync(GetVerificationCodeDto verificationCodeDto, CancellationToken cancellationToken)
         {
 
-            var result = await _autService.AuthenticateAsync(verificationCodeDto.Ncode, verificationCodeDto.PhoneNumber);
+            var result = await _autService.AuthenticateAsync(verificationCodeDto.NationalCode, verificationCodeDto.PhoneNumber);
             if (result.Data != null)
             {
                 var isCodeValid = await _userManager

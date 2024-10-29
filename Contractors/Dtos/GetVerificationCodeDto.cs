@@ -17,7 +17,7 @@ namespace Contractors.Dtos
         /// کد ملی کاربر.
         /// </summary>
         [Required]
-        public string Ncode { get; set; }
+        public string NationalCode { get; set; }
 
         /// <summary>
         /// شماره تلفن کاربر.
