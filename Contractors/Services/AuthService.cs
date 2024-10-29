@@ -126,9 +126,9 @@ namespace Contractors.Services
                  new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString() ?? string.Empty),
                  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                  //new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString(), ClaimValueTypes.DateTime),
-                 new Claim("FirstName", user.UserName ?? string.Empty),
-                 //new Claim("LastName", user.LastName ?? string.Empty),
-                 
+                 new Claim("FirstName", user.FirstName ?? " "),
+                 new Claim("LastName", user.LastName ?? " "),
+
                  new Claim(ClaimTypes.Role,role)
              };
 
