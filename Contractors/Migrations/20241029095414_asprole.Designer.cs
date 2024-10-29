@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Contractors.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241027081000_first")]
-    partial class first
+    [Migration("20241029095414_asprole")]
+    partial class asprole
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -103,16 +103,16 @@ namespace Contractors.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "756fcb6f-16d9-4547-a7f0-27245254534b",
+                            ConcurrencyStamp = "c6c75283-53a3-4ac5-8966-6dbd272efafc",
                             Email = "admin@gmail.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "CLIENT123",
-                            PasswordHash = "AQAAAAIAAYagAAAAEO5ItXywNX3YjByxIJHFkdmsaQP85ZJpbTCNcR4npHIYc9w08fMZXWtJol8mI9+/kw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJ5JFyI/Qn9gdyIEMRxKPd0IEiCMPLRQ1LtbpxMTl1AZ5Gsw29icpHG8qKWskElM7A==",
                             PhoneNumber = "09179",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "0c79c00e-0793-46a7-9fcc-04a81826cf25",
+                            SecurityStamp = "e83a9917-01dc-4c9b-9c63-30cc10919ac4",
                             TwoFactorEnabled = false,
                             UserName = "Client123"
                         });
@@ -343,10 +343,19 @@ namespace Contractors.Migrations
                     b.Property<string>("FilePath")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("FileTypeId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<int>("RequestId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StatusId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -682,6 +691,9 @@ namespace Contractors.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StatusId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")

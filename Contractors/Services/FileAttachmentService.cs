@@ -149,6 +149,13 @@ namespace Contractors.Services
 
         }
 
+
+        public async Task<FileAttachment?> GetByRequestIdAndFileTypeAsync(int requestId, FileAttachmentType fileType, CancellationToken cancellationToken)
+        {
+            return await _context.FileAttachments
+                .FirstOrDefaultAsync(f => f.RequestId == requestId && f.FileTypeId == (int)fileType, cancellationToken);
+        }
+
         private string GetContentType(string path)
         {
             var types = GetMimeTypes();

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Contractors.Migrations
 {
     /// <inheritdoc />
-    public partial class first : Migration
+    public partial class asprole : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -351,6 +351,9 @@ namespace Contractors.Migrations
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RequestId = table.Column<int>(type: "int", nullable: false),
+                    StatusId = table.Column<int>(type: "int", nullable: false),
+                    FileTypeId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
@@ -404,6 +407,7 @@ namespace Contractors.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RequestId = table.Column<int>(type: "int", nullable: false),
+                    StatusId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: true),
                     CreatedBy = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -515,7 +519,7 @@ namespace Contractors.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { 1, 0, "756fcb6f-16d9-4547-a7f0-27245254534b", "admin@gmail.com", false, null, null, false, null, "ADMIN@GMAIL.COM", "CLIENT123", "AQAAAAIAAYagAAAAEO5ItXywNX3YjByxIJHFkdmsaQP85ZJpbTCNcR4npHIYc9w08fMZXWtJol8mI9+/kw==", "09179", false, "0c79c00e-0793-46a7-9fcc-04a81826cf25", false, "Client123" });
+                values: new object[] { 1, 0, "c6c75283-53a3-4ac5-8966-6dbd272efafc", "admin@gmail.com", false, null, null, false, null, "ADMIN@GMAIL.COM", "CLIENT123", "AQAAAAIAAYagAAAAEJ5JFyI/Qn9gdyIEMRxKPd0IEiCMPLRQ1LtbpxMTl1AZ5Gsw29icpHG8qKWskElM7A==", "09179", false, "e83a9917-01dc-4c9b-9c63-30cc10919ac4", false, "Client123" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",

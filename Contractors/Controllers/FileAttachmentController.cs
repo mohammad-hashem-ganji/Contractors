@@ -43,10 +43,27 @@ namespace ContractorsAuctioneer.Controllers
             }
             return BadRequest(file);
         }
-        //public async Task<IActionResult> DonlowdByRequestId(int requestId, int fileTypeId, CancellationToken cancellationToken)
-        //{
+        [Authorize(Roles = "Client")]
+        [HttpGet]
+        [Route(nameof(DonlowdByRequestId))]
+        public async Task<IActionResult> DonlowdByRequestId(int requestId, int fileTypeId, CancellationToken cancellationToken)
+        {
+            // Fetch the file attachment based on requestId and fileTypeId
+            var fileAttachment = await _fileAttachmentService.GetByRequestIdAndFileTypeAsync(requestId, (FileAttachmentType)fileTypeId, cancellationToken);
 
-        //}
+            // Check if the file was found
+            if (fileAttachment == null || string.IsNullOrEmpty(fileAttachment.FilePath) || !System.IO.File.Exists(fileAttachment.FilePath))
+            {
+                return NotFound("File not found.");
+            }
+
+            // Read the file contents
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(fileAttachment.FilePath, cancellationToken);
+            var fileName = fileAttachment.FileName ?? "downloaded_file";
+
+            // Return the file with appropriate content type
+            return File(fileBytes, "application/octet-stream", fileName);
+        }
 
     }
 }

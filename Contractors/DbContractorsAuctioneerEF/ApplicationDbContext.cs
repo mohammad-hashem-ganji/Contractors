@@ -31,8 +31,8 @@ namespace Contractors.DbContractorsAuctioneerEF
             modelBuilder.ApplyConfiguration(new FileAttachmentConfiguration());
             modelBuilder.ApplyConfiguration(new LastLoginHistoryConfiguration());
             modelBuilder.ApplyConfiguration(new RejectConfiguration());
-            ApplicationUserConfiguration.SeedUsers(modelBuilder); ;
-            
+            ApplicationUserConfiguration.SeedUsers(modelBuilder);
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<RequestStatus>().HasQueryFilter(x => x.IsDeleted == false);
@@ -61,14 +61,14 @@ namespace Contractors.DbContractorsAuctioneerEF
                     NormalizedName = "CONTRACTOR"
                 },
                 new IdentityRole<int>
-                { 
+                {
                     Id = 3,
                     Name = "Admin",
                     NormalizedName = "ADMIN"
                 },
             };
             modelBuilder.Entity<IdentityRole<int>>().HasData(roles);
-            
+
         }
         public DbSet<Request> Requests { get; set; }
         public DbSet<RequestStatus> RequestStatuses { get; set; }
