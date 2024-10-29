@@ -261,6 +261,11 @@ namespace Contractors.Controllers
             {
                 return BadRequest(request);
             }
+            var requestIsChecked = await _requestService.CheckRequestOfClientAsync(cancellationToken);
+            if (!requestIsChecked.IsSuccessful || request.Data == null)
+            {
+                return Problem(detail: request.ErrorMessage, statusCode: 500, title: "Bad Request");
+            }
             return Ok(request);
         }
     }

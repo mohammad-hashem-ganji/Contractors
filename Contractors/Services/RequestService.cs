@@ -215,6 +215,10 @@ namespace Contractors.Services
                     return new Result<RequestDto>().WithValue(null).Failure("خطا");
                 }
                 var clientId = user.Data.UserId;
+                if (user.Data.Role != "Client")
+                {
+                    return new Result<RequestDto>().WithValue(null).Failure("نقش نامتعارف .");
+                }
 
                 var appId = int.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out int appUserId);
                 if (!appId)
