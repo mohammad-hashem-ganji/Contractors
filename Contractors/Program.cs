@@ -120,6 +120,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+#region CORS
+
+builder.Services.AddCors(o => o.AddPolicy(name: "MyPolicy", builder =>
+{
+    builder.WithOrigins("*") //.AllowAnyOrigin() //WithOrigins("http://localhost:8080")
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    //.AllowCredentials();
+}));
+
+#endregion
 var app = builder.Build();
 
 // Seed the database with users and roles
@@ -158,6 +169,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors(policyName: "MyPolicy");
+
 app.MapControllers();
 
 app.Run();
