@@ -51,6 +51,7 @@ namespace Contractors.Controllers
             if (token.Data is null)
             {
                 return Unauthorized();
+
             }
 
             return Ok(token);
