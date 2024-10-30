@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Contractors.Migrations
 {
     /// <inheritdoc />
-    public partial class asprole : Migration
+    public partial class project : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -278,12 +278,12 @@ namespace Contractors.Migrations
                     RegistrationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ConfirmationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ExpireAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsAcceptedByClient = table.Column<bool>(type: "bit", nullable: false),
+                    IsAcceptedByClient = table.Column<bool>(type: "bit", nullable: true),
                     ClientId = table.Column<int>(type: "int", nullable: false),
                     RegionId = table.Column<int>(type: "int", nullable: false),
-                    IsTenderOver = table.Column<bool>(type: "bit", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    IsFileCheckedByClient = table.Column<bool>(type: "bit", nullable: false),
+                    IsTenderOver = table.Column<bool>(type: "bit", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: true),
+                    IsFileCheckedByClient = table.Column<bool>(type: "bit", nullable: true),
                     CreatedBy = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
@@ -460,6 +460,8 @@ namespace Contractors.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ContractorBidId = table.Column<int>(type: "int", nullable: false),
+                    ContractorId = table.Column<int>(type: "int", nullable: false),
+                    ClientId = table.Column<int>(type: "int", nullable: false),
                     StartedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedBy = table.Column<int>(type: "int", nullable: false),
@@ -473,6 +475,16 @@ namespace Contractors.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Projects_AspNetUsers_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Projects_AspNetUsers_ContractorId",
+                        column: x => x.ContractorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Projects_BidOfContractors_ContractorBidId",
                         column: x => x.ContractorBidId,
@@ -519,7 +531,7 @@ namespace Contractors.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { 1, 0, "c6c75283-53a3-4ac5-8966-6dbd272efafc", "admin@gmail.com", false, null, null, false, null, "ADMIN@GMAIL.COM", "CLIENT123", "AQAAAAIAAYagAAAAEJ5JFyI/Qn9gdyIEMRxKPd0IEiCMPLRQ1LtbpxMTl1AZ5Gsw29icpHG8qKWskElM7A==", "09179", false, "e83a9917-01dc-4c9b-9c63-30cc10919ac4", false, "Client123" });
+                values: new object[] { 1, 0, "2ab96c14-dd65-40ae-9eda-d85d7f14c204", "admin@gmail.com", false, null, null, false, null, "ADMIN@GMAIL.COM", "CLIENT123", "AQAAAAIAAYagAAAAECoZKvK5Nd5LrE9cmD4D+8b+kkhJJDx2pHpAH2MBUwnOBR7jwsX+NgEElMwSha4Zhg==", "09179", false, "65e50855-a99a-466e-a5a6-82dcc45289f5", false, "Client123" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
@@ -603,10 +615,20 @@ namespace Contractors.Migrations
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Projects_ClientId",
+                table: "Projects",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_ContractorBidId",
                 table: "Projects",
                 column: "ContractorBidId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_ContractorId",
+                table: "Projects",
+                column: "ContractorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProjectStatuses_ProjectId",

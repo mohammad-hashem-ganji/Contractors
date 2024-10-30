@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Contractors.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241029095414_asprole")]
-    partial class asprole
+    [Migration("20241030114215_project")]
+    partial class project
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -103,16 +103,16 @@ namespace Contractors.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c6c75283-53a3-4ac5-8966-6dbd272efafc",
+                            ConcurrencyStamp = "2ab96c14-dd65-40ae-9eda-d85d7f14c204",
                             Email = "admin@gmail.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "CLIENT123",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJ5JFyI/Qn9gdyIEMRxKPd0IEiCMPLRQ1LtbpxMTl1AZ5Gsw29icpHG8qKWskElM7A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAECoZKvK5Nd5LrE9cmD4D+8b+kkhJJDx2pHpAH2MBUwnOBR7jwsX+NgEElMwSha4Zhg==",
                             PhoneNumber = "09179",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e83a9917-01dc-4c9b-9c63-30cc10919ac4",
+                            SecurityStamp = "65e50855-a99a-466e-a5a6-82dcc45289f5",
                             TwoFactorEnabled = false,
                             UserName = "Client123"
                         });
@@ -421,10 +421,16 @@ namespace Contractors.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("ContractorBidId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ContractorId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -453,8 +459,12 @@ namespace Contractors.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ClientId");
+
                     b.HasIndex("ContractorBidId")
                         .IsUnique();
+
+                    b.HasIndex("ContractorId");
 
                     b.ToTable("Projects");
                 });
@@ -622,22 +632,23 @@ namespace Contractors.Migrations
                     b.Property<DateTime?>("ExpireAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsAcceptedByClient")
+                    b.Property<bool?>("IsAcceptedByClient")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsFileCheckedByClient")
+                    b.Property<bool?>("IsFileCheckedByClient")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsTenderOver")
+                    b.Property<bool?>("IsTenderOver")
                         .HasColumnType("bit");
 
-                    b.Property<int>("RegionId")
+                    b.Property<int?>("RegionId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("RegistrationDate")
@@ -945,11 +956,27 @@ namespace Contractors.Migrations
 
             modelBuilder.Entity("Contractors.Entites.Project", b =>
                 {
+                    b.HasOne("Contractors.Entites.ApplicationUser", "Client")
+                        .WithMany("ClientProjects")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("Contractors.Entites.BidOfContractor", "ContractorBid")
                         .WithOne("Project")
                         .HasForeignKey("Contractors.Entites.Project", "ContractorBidId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("Contractors.Entites.ApplicationUser", "Contractor")
+                        .WithMany("ContractorProjects")
+                        .HasForeignKey("ContractorId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Contractor");
 
                     b.Navigation("ContractorBid");
                 });
@@ -1061,7 +1088,11 @@ namespace Contractors.Migrations
                 {
                     b.Navigation("Client");
 
+                    b.Navigation("ClientProjects");
+
                     b.Navigation("Contractor");
+
+                    b.Navigation("ContractorProjects");
 
                     b.Navigation("LastLoginHistories");
                 });

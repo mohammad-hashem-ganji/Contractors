@@ -100,16 +100,16 @@ namespace Contractors.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1183732d-0800-4dc6-9346-aa290e9e96e4",
+                            ConcurrencyStamp = "2ab96c14-dd65-40ae-9eda-d85d7f14c204",
                             Email = "admin@gmail.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "CLIENT123",
-                            PasswordHash = "AQAAAAIAAYagAAAAECeRsg1OG0oEOIMISCQ8MakBuow+s3Tuu2ifEV+uhcrqj7yRO/3vowmq/tJXWs+duQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAECoZKvK5Nd5LrE9cmD4D+8b+kkhJJDx2pHpAH2MBUwnOBR7jwsX+NgEElMwSha4Zhg==",
                             PhoneNumber = "09179",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e078793e-c3f2-4c81-9165-9f1d733b1a9a",
+                            SecurityStamp = "65e50855-a99a-466e-a5a6-82dcc45289f5",
                             TwoFactorEnabled = false,
                             UserName = "Client123"
                         });
