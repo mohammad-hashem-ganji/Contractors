@@ -251,24 +251,24 @@ namespace Contractors.Services
             try
             {
 
-                List<BidOfContractorDto> bidsOfContractor = await _context.BidOfContractors
-                        .Where(x => (x.RequestId == requestId
 
-                        && x.Request.IsActive == true
-                        && (x.ExpireAt > DateTime.Now && x.ExpireAt != null)
-                        && x.IsDeleted == false)
-                        && (x.BidStatuses
-                        .Any(b => b.Status != BidStatusEnum.BidRejectedByContractor
-                        && b.Status != BidStatusEnum.TimeForCheckingBidForClientExpired
-                        && b.Status == BidStatusEnum.ReviewBidByClientPhase
-                        && b.ContractorBidId == x.Id)
-                        ))
+                List<BidOfContractorDto> bidsOfContractor = await _context.BidOfContractors
+                        .Where(x => x.RequestId == requestId
+                           && x.Request.IsActive == true
+                           && x.ExpireAt > DateTime.Now
+                           && x.ExpireAt != null
+                           && x.IsDeleted == false
+                           && x.BidStatuses.Any(b =>
+                             b.Status != BidStatusEnum.BidRejectedByContractor &&
+                             b.Status != BidStatusEnum.TimeForCheckingBidForClientExpired &&
+                             b.ContractorBidId == x.Id))
                         .Include(x => x.Request)
                         .Select(bid => new BidOfContractorDto
                         {
                             Id = bid.Id,
                             RequestId = bid.RequestId,
                             ContractorId = bid.ContractorId,
+                            SuggestedFee = bid.SuggestedFee
                         })
                         .OrderBy(x => x.SuggestedFee)
                         .ToListAsync(cancellationToken);
