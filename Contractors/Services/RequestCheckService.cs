@@ -58,7 +58,7 @@ namespace ContractorsAuctioneer.Services
                     foreach (var request in rejectedRequestByClient)
                     {
                         request.IsActive = false;
-
+                        request.IsAcceptedByClient = false;
                         request.ExpireAt = null;
                         var tenderOver = await requestStatusService
                          .AddAsync(new AddRequestStatusDto
@@ -70,7 +70,8 @@ namespace ContractorsAuctioneer.Services
                         if (tenderOver.IsSuccessful)
                         {
                             dbContext.Requests.Update(request);
-                            var bids = dbContext.BidOfContractors.Where(x => x.RequestId == request.Id).ToListAsync(stoppingToken);
+                            var bids = dbContext.BidOfContractors
+                                .Where(x => x.RequestId == request.Id).ToListAsync(stoppingToken);
                             foreach (var bid in bids.Result)
                             {
                                 bid.ExpireAt = DateTime.Now.AddDays(3);
@@ -88,7 +89,7 @@ namespace ContractorsAuctioneer.Services
                     foreach (var request in requestsAfterTenderExpieredAndAcceptedByClient)
                     {
                         request.IsActive = true;
-
+                        request.IsAcceptedByClient = true;
                         
                         var tenderOver = await requestStatusService
                             .AddAsync(new AddRequestStatusDto
@@ -122,6 +123,7 @@ namespace ContractorsAuctioneer.Services
                         request.IsActive = false;
                         request.IsTenderOver = true;
                         request.ExpireAt = null;
+                        request.IsAcceptedByClient = false;
                         var tenderOver = await requestStatusService
                             .AddAsync(new AddRequestStatusDto
                             {

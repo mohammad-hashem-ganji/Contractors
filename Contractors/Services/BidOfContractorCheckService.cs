@@ -5,6 +5,7 @@ using Contractors.Dtos;
 using Contractors.Entites;
 using Contractors.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging.Signing;
 using System.Diagnostics.Contracts;
 
 namespace ContractorsAuctioneer.Services
@@ -32,6 +33,7 @@ namespace ContractorsAuctioneer.Services
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var bidStatusService = scope.ServiceProvider.GetRequiredService<IBidStatusService>();
+                var bidService = scope.ServiceProvider.GetRequiredService<IBidOfContractorService>();
                 try
                 {
                     var expiredBidsForClients = await dbContext.BidOfContractors
@@ -44,9 +46,28 @@ namespace ContractorsAuctioneer.Services
                         (b.BidStatuses != null && b.BidStatuses
                         .Any(x => x.Status != BidStatusEnum.BidApprovedByContractor)))
                         .ToArrayAsync(stoppingToken);
+                    var expiredBids = await dbContext.BidOfContractors
+                        .Where(b => (b.ExpireAt.HasValue && b.ExpireAt <= DateTime.Now))
+                        .ToListAsync(stoppingToken);
                     foreach (var bid in expiredBidsForContractors)
                     {
+                        bid.ExpireAt = DateTime.Now.AddMinutes(7);
+                        var expired = await bidStatusService
+                            .AddAsync(new AddBidStatusDto
+                            {
+                                BidOfContractorId = bid.Id,
+                                Status = BidStatusEnum.TimeForCheckingBidForContractorExpired,
+                                CreatedBy = 100
+                            }, stoppingToken);
+                        if (expired.IsSuccessful)
+                        {
+                            dbContext.BidOfContractors.Update(bid);
+                        }
+                    }
+                    foreach (var bid in expiredBids)
+                    {
                         bid.ExpireAt = null;
+                        bid.CanChangeBid = false;
                         var expired = await bidStatusService
                             .AddAsync(new AddBidStatusDto
                             {

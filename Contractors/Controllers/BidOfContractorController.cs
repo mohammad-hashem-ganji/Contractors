@@ -105,9 +105,10 @@ namespace ContractorsAuctioneer.Controllers
                     var updatecontract = new UpdateBidOfContractorDto
                     {
                         BidId = entity.Data.Id,
-                        SuggestedFee = bidDto.SugestedFee
+                        SuggestedFee = bidDto.SuggestedFee,
                     };
                     var result = await _bidOfContractorService.UpdateAsync(updatecontract, cancellationToken);
+                    // if succes
                     return NoContent();
                 }
                 return NotFound(entity);

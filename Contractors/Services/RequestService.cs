@@ -98,7 +98,7 @@ namespace Contractors.Services
                     RequestNumber = requestDto.RequestNumber,
                     IsTenderOver = false,
                     IsDeleted = false,
-                    IsAcceptedByClient = false,
+                    IsAcceptedByClient = null,
                     IsFileCheckedByClient = false
 
                 };
@@ -339,8 +339,6 @@ namespace Contractors.Services
 
         }
 
-
-
         public async Task<Result<List<RequestDto>>> GetRequestsforContractor(CancellationToken cancellationToken)
         {
             try
@@ -399,7 +397,6 @@ namespace Contractors.Services
             }
         }
 
-
         public async Task<Result<UpdateRequestDto>> UpdateAsync(UpdateRequestDto requestDto, CancellationToken cancellationToken)
         {
             try
@@ -412,8 +409,6 @@ namespace Contractors.Services
                 {
                     return new Result<UpdateRequestDto>().WithValue(null).Failure(ErrorMessages.RequestNotFound);
                 }
-
-
                 if (requestDto.IsAcceptedByClient.HasValue)
                 {
 

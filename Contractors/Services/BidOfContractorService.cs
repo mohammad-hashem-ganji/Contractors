@@ -39,6 +39,10 @@ namespace Contractors.Services
             }
             try
             {
+                if (bidOfContractorDto.SuggestedFee < 0)
+                {
+                    return new Result<AddBidOfContractorDto>().WithValue(null).Failure("عدد قرار داد باید بزرگ تر از 0 باشد.");
+                }
                 var user = await UserManagement.GetRoleBaseUserId(_httpContextAccessor.HttpContext, _context);
 
                 if (!user.IsSuccessful)
@@ -54,7 +58,9 @@ namespace Contractors.Services
                 }
                 var isContractorAddedBidForRequest = await _context.BidOfContractors
                     .AnyAsync(x => x.RequestId == bidOfContractorDto.RequestId
-                    && x.CreatedBy == appUserId);
+                                      && x.ExpireAt > DateTime.Now
+                                      && x.CanChangeBid == true
+                                      && x.CreatedBy == appUserId);
                 if (isContractorAddedBidForRequest)
                 {
                     return new Result<AddBidOfContractorDto>().WithValue(null).Success("قبلا پینهاد قیمت داده اید.");
@@ -154,7 +160,10 @@ namespace Contractors.Services
         {
             try
             {
-
+                if (bidOfContractorDto.SuggestedFee < 0)
+                {
+                    return new Result<UpdateBidOfContractorDto>().WithValue(null).Failure("عدد قرار داد باید بزرگ تر از 0 باشد.");
+                }
 
                 int userId;
                 bool isconverted = int.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
@@ -163,7 +172,9 @@ namespace Contractors.Services
                     return new Result<UpdateBidOfContractorDto>().WithValue(null).Failure("خطا هنگام تغییر پیشنهاد");
                 }
                 BidOfContractor? bidOfContractor = await _context.BidOfContractors
-                  .Where(x => x.Id == bidOfContractorDto.BidId)
+                  .Where(x => x.Id == bidOfContractorDto.BidId
+                  && x.ExpireAt > DateTime.Now
+                  && x.CanChangeBid == true)
                   .FirstOrDefaultAsync(cancellationToken);
                 if (bidOfContractor is null)
                 {
@@ -239,7 +250,7 @@ namespace Contractors.Services
         {
             try
             {
-                
+
                 List<BidOfContractorDto> bidsOfContractor = await _context.BidOfContractors
                         .Where(x => (x.RequestId == requestId
 
@@ -248,7 +259,7 @@ namespace Contractors.Services
                         && x.IsDeleted == false)
                         && (x.BidStatuses
                         .Any(b => b.Status != BidStatusEnum.BidRejectedByContractor
-                        && b.Status != BidStatusEnum.TimeForCheckingBidForClientExpired 
+                        && b.Status != BidStatusEnum.TimeForCheckingBidForClientExpired
                         && b.Status == BidStatusEnum.ReviewBidByClientPhase
                         && b.ContractorBidId == x.Id)
                         ))
@@ -293,9 +304,9 @@ namespace Contractors.Services
             var contractorId = user.Data.UserId;
 
             var acceptedBids = await _context.BidOfContractors
-                .Where(b => b.ContractorId == contractorId 
+                .Where(b => b.ContractorId == contractorId
                 && (b.ExpireAt > DateTime.Now && b.ExpireAt != null)
-                &&b.BidStatuses.Any(x => x.Status == BidStatusEnum.BidApprovedByClient))
+                && b.BidStatuses.Any(x => x.Status == BidStatusEnum.BidApprovedByClient))
                 .Include(x => x.BidStatuses)
                 .Select(x => new BidOfContractorDto
                 {
