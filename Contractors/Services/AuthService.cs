@@ -127,11 +127,11 @@ namespace Contractors.Services
                  new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString() ?? string.Empty),
                  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                  //new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString(), ClaimValueTypes.DateTime),
-                 new Claim("FirstName", user.FirstName ?? " "),
-                 new Claim("LastName", user.LastName ?? " "),
+                 new Claim("firstName", user.FirstName ?? " "),
+                 new Claim("lastName", user.LastName ?? " "),
 
                  new Claim(ClaimTypes.Role,role),
-                 new Claim("u-role",role)
+                 new Claim("uRole",role)
              };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
