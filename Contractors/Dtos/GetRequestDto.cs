@@ -14,6 +14,6 @@ namespace Contractors.Dtos
         public int ClientId { get; set; }
         public bool? IsAcceptedByClient { get; set; }
         public string? RegionTitle { get; set; }
-        public RequestStatusEnum RequestStatusEnum { get; set; }
+        public RequestStatusEnum? LastStatus { get; set; }
     }
 }

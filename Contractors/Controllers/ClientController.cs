@@ -151,6 +151,7 @@ namespace Contractors.Controllers
 
                 var updateRequestDto = new UpdateRequestDto
                 {
+                    Id = request.Data.Id,
                     IsActive = true,
                     ExpireAt = DateTime.Now.AddMinutes(7),
                     IsAcceptedByClient = true

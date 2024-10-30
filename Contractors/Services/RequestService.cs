@@ -308,10 +308,10 @@ namespace Contractors.Services
                        ClientId = x.ClientId,
                        RequestNumber = x.RequestNumber,
                        RegionTitle = x.Region.Title,
-                       RequestStatusEnum = x.RequestStatuses
+                       LastStatus = x.RequestStatuses
                        .OrderByDescending(rs => rs.CreatedAt)
                        .Select(rs => rs.Status)
-                       .FirstOrDefault().Value
+                       .FirstOrDefault()
 
 
                    }).FirstOrDefaultAsync(cancellationToken);

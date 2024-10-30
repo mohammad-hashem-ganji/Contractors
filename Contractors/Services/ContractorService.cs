@@ -81,19 +81,10 @@ namespace Contractors.Services
                         BidOfContractors = contractor.BidOfContractors.Select(b => new BidOfContractorDto
                         {
                             Id = b.Id,
-                            CanChangeBid = b.CanChangeBid,
                             SuggestedFee = b.SuggestedFee,
                             RequestId = b.RequestId,
-                            IsDeleted = b.IsDeleted,
                             CreatedAt = b.CreatedAt,
-                            CreatedBy = b.CreatedBy,
-                            UpdatedAt = b.UpdatedAt,
-                            UpdatedBy = b.UpdatedBy,
-                            DeletedAt = b.DeletedAt,
-                            DeletedBy = b.DeletedBy,
                             ContractorId = b.ContractorId,
-
-
                         }).ToList(),
                     };
                     return new Result<ContractorDto>().WithValue(contractorDto).Success(SuccessMessages.ClientFound);

@@ -109,15 +109,6 @@ namespace Contractors.Services
                         ContractorId = bidOfContractor.ContractorId,
                         SuggestedFee = bidOfContractor.SuggestedFee,
                         CreatedAt = bidOfContractor.CreatedAt,
-                        BidStatuses = bidOfContractor.BidStatuses.Select(b => new BidStatus
-                        {
-                            Id = b.Id,
-                            Status = b.Status,
-                            UpdatedAt = b.UpdatedAt,
-                            UpdatedBy = b.CreatedBy
-                        })
-                        .OrderByDescending(b => b.CreatedAt)
-                        .ToList()
                     };
                     return new Result<BidOfContractorDto>().WithValue(bidOfContractorDto).Success("پیشنهاد پیدا شد");
                 }
@@ -143,15 +134,6 @@ namespace Contractors.Services
                     ContractorId = x.ContractorId,
                     SuggestedFee = x.SuggestedFee,
                     CreatedAt = x.CreatedAt,
-                    BidStatuses = x.BidStatuses.Select(b => new BidStatus
-                    {
-                        Id = b.Id,
-                        Status = b.Status,
-                        CreatedAt = b.CreatedAt,
-                        CreatedBy = b.CreatedBy
-                    })
-                    .OrderByDescending(b => b.CreatedAt)
-                    .ToList()
 
                 }).ToList();
                 if (bidsOfContractorDto.Any())
@@ -233,16 +215,8 @@ namespace Contractors.Services
                     ContractorId = x.ContractorId,
                     Id = x.Id,
                     SuggestedFee = x.SuggestedFee,
-                    IsDeleted = x.IsDeleted,
                     RequestId = x.RequestId,
                     CreatedAt = x.CreatedAt,
-                    BidStatuses = x.BidStatuses.Select(b => new BidStatus
-                    {
-                        Id = b.Id,
-                        Status = b.Status,
-                        CreatedAt = b.CreatedAt,
-                        CreatedBy = b.CreatedBy
-                    }).ToList()
                 })
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync(cancellationToken);
@@ -270,6 +244,7 @@ namespace Contractors.Services
                         .Where(x => (x.RequestId == requestId
 
                         && x.Request.IsActive == true
+                        && x.ExpireAt < DateTime.Now
                         && x.IsDeleted == false)
                         && (x.BidStatuses
                         .Any(b => b.Status != BidStatusEnum.BidRejectedByContractor
@@ -283,9 +258,6 @@ namespace Contractors.Services
                             Id = bid.Id,
                             RequestId = bid.RequestId,
                             ContractorId = bid.ContractorId,
-                            SuggestedFee = bid.SuggestedFee,
-                            CreatedBy = bid.CreatedBy,
-                            BidStatuses = bid.BidStatuses,
                         })
                         .OrderBy(x => x.SuggestedFee)
                         .ToListAsync(cancellationToken);
@@ -385,15 +357,6 @@ namespace Contractors.Services
                         ContractorId = bidOfContractor.ContractorId,
                         SuggestedFee = bidOfContractor.SuggestedFee,
                         CreatedAt = bidOfContractor.CreatedAt,
-                        BidStatuses = bidOfContractor.BidStatuses.Select(b => new BidStatus
-                        {
-                            Id = b.Id,
-                            Status = b.Status,
-                            UpdatedAt = b.UpdatedAt,
-                            UpdatedBy = b.CreatedBy
-                        })
-                     .OrderByDescending(b => b.CreatedAt)
-                     .ToList()
                     };
                     return new Result<BidOfContractorDto>().WithValue(bidOfContractorDto).Success(SuccessMessages.BidsOfRequestFound);
                 }
