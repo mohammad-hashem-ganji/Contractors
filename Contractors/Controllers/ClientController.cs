@@ -178,7 +178,7 @@ namespace Contractors.Controllers
                     RequestId = requestDto.RequestId,
                     Status = Entites.RequestStatusEnum.RequestRejectedByClient
                 };
- 
+   
                 newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage,
                     statusCode: 400, title : newRequestStatus.ErrorMessage);
