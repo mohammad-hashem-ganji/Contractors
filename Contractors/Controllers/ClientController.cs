@@ -134,7 +134,7 @@ namespace Contractors.Controllers
             var request = await _requestService.CheckRequestOfClientAsync(cancellationToken);
             if (!request.IsSuccessful || request.Data == null)
             {
-                return Problem(detail: request.ErrorMessage, statusCode: 500, title: request.ErrorMessage);
+                return Ok(request);
             }
             if (requestDto.RequestId != request.Data.Id && request.Data.IsActive == false) return NotFound(request);
 
