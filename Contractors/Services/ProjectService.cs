@@ -17,8 +17,6 @@ namespace Contractors.Services
         private readonly ApplicationDbContext _context;
         private readonly IBidOfContractorService _bidOfContractorService;
 
-        private readonly IBidOfContractorService _bidOfContactorService;
-
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ProjectService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IBidOfContractorService bidOfContractorService)

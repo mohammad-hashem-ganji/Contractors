@@ -134,7 +134,7 @@ namespace Contractors.Controllers
             var request = await _requestService.CheckRequestOfClientAsync(cancellationToken);
             if (!request.IsSuccessful || request.Data == null)
             {
-                return Problem(detail: request.ErrorMessage, statusCode: 500, title: "Bad Request");
+                return Problem(detail: request.ErrorMessage, statusCode: 500, title: request.ErrorMessage);
             }
             if (requestDto.RequestId != request.Data.Id && request.Data.IsActive == false) return NotFound(request);
 
@@ -147,7 +147,7 @@ namespace Contractors.Controllers
                 };
 
                 newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
-                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: "Internal Server Error");
+                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
 
                 var updateRequestDto = new UpdateRequestDto
                 {
@@ -168,7 +168,7 @@ namespace Contractors.Controllers
                 };
 
                 newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
-                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: "Internal Server Error");
+                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
                 return Ok(requestDto);
             }
             else
@@ -181,7 +181,7 @@ namespace Contractors.Controllers
  
                 newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage,
-                    statusCode: 400, title: "Bad Request");
+                    statusCode: 400, title : newRequestStatus.ErrorMessage);
                 var updateRequestDto = new UpdateRequestDto
                 {
                     IsActive = false,
@@ -191,7 +191,7 @@ namespace Contractors.Controllers
                 var updateResult = await _requestService.UpdateAsync(updateRequestDto, cancellationToken);
                 if (!updateResult.IsSuccessful)
                 {
-                    return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: "Internal Server Error");
+                    return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: updateResult.ErrorMessage);
                 }
                 return Ok(requestDto);
             }
