@@ -169,7 +169,7 @@ namespace Contractors.Controllers
 
                 newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: "Internal Server Error");
-                return Ok("Ok");
+                return Ok(requestDto);
             }
             else
             {
@@ -193,7 +193,7 @@ namespace Contractors.Controllers
                 {
                     return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: "Internal Server Error");
                 }
-                return Ok("Ok");
+                return Ok(requestDto);
             }
             
             //return Problem(detail: "خطا!", statusCode: 400, title: "Bad Request");

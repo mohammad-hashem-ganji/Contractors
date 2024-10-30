@@ -157,5 +157,8 @@ namespace Contractors.Services
                 return new Result<GetProjectDto>().WithValue(null).Failure(ex.Message);
             }
         }
+
+
+        public async Task<Result<>>
     }
 }

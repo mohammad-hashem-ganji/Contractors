@@ -120,6 +120,7 @@ namespace ContractorsAuctioneer.Controllers
                 }
                 else
                 {
+                    
                     var newProject = new AddProjectDto
                     {
                         ContractorBidId = bidDto.BidId
