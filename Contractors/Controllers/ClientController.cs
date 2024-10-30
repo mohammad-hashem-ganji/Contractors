@@ -161,8 +161,15 @@ namespace Contractors.Controllers
                 {
                     return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: "Internal Server Error");
                 }
+                newStatus = new AddRequestStatusDto
+                {
+                    RequestId = request.Data.Id,
+                    Status = Entites.RequestStatusEnum.RequestIsInTenderphase
+                };
 
-                return Ok();
+                newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
+                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: "Internal Server Error");
+                return Ok("Ok");
             }
             else
             {
@@ -186,7 +193,7 @@ namespace Contractors.Controllers
                 {
                     return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: "Internal Server Error");
                 }
-                return Ok();
+                return Ok("Ok");
             }
             
             //return Problem(detail: "خطا!", statusCode: 400, title: "Bad Request");
@@ -243,13 +250,9 @@ namespace Contractors.Controllers
         [ProducesResponseType(typeof(Result<List<BidOfContractorDto>>), StatusCodes.Status200OK)] // Successful response with bid list
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetBidsOfRequestByClient(int requestId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetBidsOfRequestByClient( CancellationToken cancellationToken)
         {
-            if (requestId < 0)
-            {
-                return BadRequest("مقدار ورودی نا معتبر است");
-            }
-            var bidsOfRequest = await _bidOfContractorService.GetBidsOfRequestAsync(requestId, cancellationToken);
+            var bidsOfRequest = await _bidOfContractorService.GetBidsOfRequestAsync(cancellationToken);
             if (!bidsOfRequest.IsSuccessful)
             {
                 return Problem(bidsOfRequest.Message);

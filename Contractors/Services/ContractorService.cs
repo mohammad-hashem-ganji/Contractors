@@ -84,7 +84,6 @@ namespace Contractors.Services
                             SuggestedFee = b.SuggestedFee,
                             RequestId = b.RequestId,
                             CreatedAt = b.CreatedAt,
-                            ContractorId = b.ContractorId,
                         }).ToList(),
                     };
                     return new Result<ContractorDto>().WithValue(contractorDto).Success(SuccessMessages.ClientFound);

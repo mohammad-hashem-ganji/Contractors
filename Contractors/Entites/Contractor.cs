@@ -20,6 +20,7 @@ namespace Contractors.Entites
         public int ApplicationUserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
         public ICollection<BidOfContractor>? BidOfContractors { get; set; }
+
        
 
     }

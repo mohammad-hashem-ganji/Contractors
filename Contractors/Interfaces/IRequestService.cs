@@ -10,7 +10,7 @@ namespace Contractors.Interfaces
         Task<Result<RequestDto>> GetByIdAsync(int reqId, CancellationToken cancellationToken);
         Task<Result<GetRequestDto>> GetRequestOfClientAsync(CancellationToken cancellationToken);
         Task<Result<UpdateRequestDto>> UpdateAsync(UpdateRequestDto requestDto, CancellationToken cancellationToken);
-        Task<Result<List<RequestDto>>> GetRequestsforContractor(CancellationToken cancellationToken);
+        Task<Result<List<RequestForShowingDetailsToContractorDto>>> GetRequestsforContractor(CancellationToken cancellationToken);
         Task<Result<RequestDto>> CheckRequestOfClientAsync(CancellationToken cancellationToken);
     }
 }

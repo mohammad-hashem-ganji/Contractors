@@ -80,9 +80,9 @@ namespace ContractorsAuctioneer.Controllers
         [Authorize(Roles = "Client")]
         [HttpGet]
         [Route(nameof(GetBidsOfRequest))]
-        public async Task<IActionResult> GetBidsOfRequest(int requestId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetBidsOfRequest( CancellationToken cancellationToken)
         {
-            var bids = await _bidOfContractorService.GetBidsOfRequestAsync(requestId, cancellationToken);
+            var bids = await _bidOfContractorService.GetBidsOfRequestAsync( cancellationToken);
             if (bids.Data is null)
             {
                 return BadRequest(bids);

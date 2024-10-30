@@ -339,14 +339,14 @@ namespace Contractors.Services
 
         }
 
-        public async Task<Result<List<RequestDto>>> GetRequestsforContractor(CancellationToken cancellationToken)
+        public async Task<Result<List<RequestForShowingDetailsToContractorDto>>> GetRequestsforContractor(CancellationToken cancellationToken)
         {
             try
             {
                 var appId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (!int.TryParse(appId, out var contractorId))
                 {
-                    return new Result<List<RequestDto>>().WithValue(null).Failure("خطا");
+                    return new Result<List<RequestForShowingDetailsToContractorDto>>().WithValue(null).Failure("خطا");
                 }
 
 
@@ -354,44 +354,36 @@ namespace Contractors.Services
                       .Where(r =>
                       r.RequestStatuses.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient &&
                                                   rs.Status != RequestStatusEnum.RequestRejectedByContractor))
-                      .Select(r => new RequestDto
+                      .Select(r => new RequestForShowingDetailsToContractorDto
                       {
-                          Id = r.Id,
+                          RequestId = r.Id,
                           RequestNumber = r.RequestNumber,
                           Title = r.Title,
                           Description = r.Description,
-                          RegistrationDate = r.RegistrationDate,
-                          ConfirmationDate = r.ConfirmationDate,
-                          ExpireAt = r.ExpireAt,
-                          ClientId = r.ClientId,
                           RegionTitle = r.Region.Title,
-                          IsTenderOver = r.IsTenderOver,
-                          IsActive = r.IsActive,
-                          IsAcceptedByClient = r.IsAcceptedByClient,
-                          CreatedAt = r.CreatedAt,
-
-
-
-
+                          LastStatus = r.RequestStatuses
+                             .OrderByDescending(rs => rs.CreatedAt)
+                             .Select(rs => rs.Status)
+                             .FirstOrDefault()
                       }).ToListAsync(cancellationToken);
 
                 if (requests.Any())
                 {
-                    return new Result<List<RequestDto>>()
+                    return new Result<List<RequestForShowingDetailsToContractorDto>>()
                         .WithValue(requests)
                         .Success("درخواست ها یافت شدند .");
                 }
                 else
                 {
 
-                    return new Result<List<RequestDto>>()
+                    return new Result<List<RequestForShowingDetailsToContractorDto>>()
                         .WithValue(null)
                         .Success("درخواستی وجود ندارد");
                 }
             }
             catch (Exception ex)
             {
-                return new Result<List<RequestDto>>()
+                return new Result<List<RequestForShowingDetailsToContractorDto>>()
                     .WithValue(null)
                     .Failure("هنگام اجرا خطایی پیش آمد!");
             }

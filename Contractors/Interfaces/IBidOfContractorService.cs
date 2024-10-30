@@ -10,7 +10,7 @@ namespace Contractors.Interfaces
         Task<Result<List<BidOfContractorDto>>> GetAllAsync(CancellationToken cancellationToken);
         Task<Result<UpdateBidOfContractorDto>> UpdateAsync(UpdateBidOfContractorDto bidOfContractorDto, CancellationToken cancellationToken);
         Task<Result<List<BidOfContractorDto>>> GetBidsOfContractorAsync(CancellationToken cancellationToken);
-        Task<Result<List<BidOfContractorDto>>> GetBidsOfRequestAsync(int requestId, CancellationToken cancellationToken);
+        Task<Result<List<BidOfContractorDto>>> GetBidsOfRequestAsync( CancellationToken cancellationToken);
         Task<Result<List<BidOfContractorDto>>> GetBidsAcceptedByClientAsync(CancellationToken cancellationToken);
         Task<Result<BidOfContractorDto>> CheckBidIsAcceptedByClientAsync(int bidId, CancellationToken cancellationToken);
     }

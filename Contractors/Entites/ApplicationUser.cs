@@ -10,5 +10,8 @@ namespace Contractors.Entites
         public List<LastLoginHistory>? LastLoginHistories{ get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+        public ICollection<Project> ContractorProjects { get; set; }
+        public ICollection<Project> ClientProjects{ get; set; }
+
     }
 }

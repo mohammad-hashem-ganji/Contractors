@@ -20,5 +20,6 @@ namespace Contractors.Entites
         public ApplicationUser? ApplicationUser { get; set; }
         public ICollection<Request>? Requests { get; set; }
 
+
     }
 }

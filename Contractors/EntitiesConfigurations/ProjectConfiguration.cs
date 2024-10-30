@@ -22,6 +22,16 @@ namespace Contractors.EntitiesConfigurations
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired();
+            builder.HasOne(p => p.Contractor)
+                .WithMany(p => p.ContractorProjects)
+                .HasForeignKey(p => p.ContractorId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired();
+            builder.HasOne(p => p.Client)
+                .WithMany(p => p.ClientProjects)
+                .HasForeignKey(p => p.ClientId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired();
         }
     }
 }

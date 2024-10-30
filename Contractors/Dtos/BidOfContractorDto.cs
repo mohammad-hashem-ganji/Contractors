@@ -6,7 +6,7 @@ namespace Contractors.Dtos
     {
         public int Id { get; set; }
         public int? SuggestedFee { get; set; }
-        public int ContractorId { get; set; }
+        public ContractorDetailsDto contractor { get; set; }
         public int RequestId { get; set; }
         public DateTime ExpireAt { get; set; }
         // add last status for bid

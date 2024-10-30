@@ -21,14 +21,17 @@ namespace Contractors.Services
 
         private readonly ApplicationDbContext _context;
         private readonly IContractorService _contractorService;
+        private readonly IRequestService _requestService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public BidOfContractorService(ApplicationDbContext context,
             IContractorService contractorService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IRequestService requestService)
         {
             _context = context;
             _contractorService = contractorService;
             _httpContextAccessor = httpContextAccessor;
+            _requestService = requestService;
         }
         public async Task<Result<AddBidOfContractorDto>> AddAsync(AddBidOfContractorDto bidOfContractorDto, CancellationToken cancellationToken)
         {
@@ -112,7 +115,7 @@ namespace Contractors.Services
                     {
                         Id = bidOfContractor.Id,
                         RequestId = bidOfContractor.RequestId,
-                        ContractorId = bidOfContractor.ContractorId,
+
                         SuggestedFee = bidOfContractor.SuggestedFee,
                         CreatedAt = bidOfContractor.CreatedAt,
                     };
@@ -137,7 +140,12 @@ namespace Contractors.Services
                 {
                     Id = x.Id,
                     RequestId = x.RequestId,
-                    ContractorId = x.ContractorId,
+                    contractor = new ContractorDetailsDto
+                    {
+                        ContractorName = x.Contractor.Name,
+                        ContractorAddress = x.Contractor.Address,
+                        ContractorPhoneNumber = x.Contractor.MobileNumber
+                    },
                     SuggestedFee = x.SuggestedFee,
                     CreatedAt = x.CreatedAt,
 
@@ -223,7 +231,12 @@ namespace Contractors.Services
                 .Where(x => x.CreatedBy == appUserId && x.IsDeleted == false)
                 .Select(x => new BidOfContractorDto
                 {
-                    ContractorId = x.ContractorId,
+                    contractor = new ContractorDetailsDto
+                    {
+                        ContractorName = x.Contractor.Name,
+                        ContractorAddress = x.Contractor.Address,
+                        ContractorPhoneNumber = x.Contractor.MobileNumber
+                    },
                     Id = x.Id,
                     SuggestedFee = x.SuggestedFee,
                     RequestId = x.RequestId,
@@ -246,14 +259,25 @@ namespace Contractors.Services
             }
 
         }
-        public async Task<Result<List<BidOfContractorDto>>> GetBidsOfRequestAsync(int requestId, CancellationToken cancellationToken)
+        public async Task<Result<List<BidOfContractorDto>>> GetBidsOfRequestAsync(CancellationToken cancellationToken)
         {
             try
             {
-
-
+                int userId;
+                bool isconverted = int.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
+                if (!isconverted)
+                {
+                    return new Result<List<BidOfContractorDto>>().WithValue(null).Failure("خطا هنگام تغییر پیشنهاد");
+                }
+                var request = await _requestService.GetRequestOfClientAsync(cancellationToken);
+                if (request.Data == null)
+                {
+                    return new Result<List<BidOfContractorDto>>()
+                        .WithValue(null)
+                        .Failure(ErrorMessages.ErrorWhileRetrievingBidsOfContracotrs);
+                }
                 List<BidOfContractorDto> bidsOfContractor = await _context.BidOfContractors
-                        .Where(x => x.RequestId == requestId
+                        .Where(x => x.RequestId == request.Data.Id
                            && x.Request.IsActive == true
                            && x.ExpireAt > DateTime.Now
                            && x.ExpireAt != null
@@ -261,14 +285,22 @@ namespace Contractors.Services
                            && x.BidStatuses.Any(b =>
                              b.Status != BidStatusEnum.BidRejectedByContractor &&
                              b.Status != BidStatusEnum.TimeForCheckingBidForClientExpired &&
+                             b.Status == BidStatusEnum.ReviewBidByClientPhase &&
                              b.ContractorBidId == x.Id))
                         .Include(x => x.Request)
                         .Select(bid => new BidOfContractorDto
                         {
                             Id = bid.Id,
                             RequestId = bid.RequestId,
-                            ContractorId = bid.ContractorId,
-                            SuggestedFee = bid.SuggestedFee
+                            contractor = new ContractorDetailsDto
+                            {
+                                ContractorName = bid.Contractor.Name,
+                                ContractorAddress = bid.Contractor.Address,
+                                ContractorPhoneNumber = bid.Contractor.MobileNumber
+                            },
+
+                            SuggestedFee = bid.SuggestedFee,
+
                         })
                         .OrderBy(x => x.SuggestedFee)
                         .ToListAsync(cancellationToken);
@@ -342,6 +374,7 @@ namespace Contractors.Services
                 BidOfContractor? bidOfContractor = await _context.BidOfContractors
                     .Where(x => x.Id == bidId && x.CreatedBy == userId)
                     .Include(x => x.BidStatuses)
+                    .Include(x => x.Contractor)
                     .FirstOrDefaultAsync(cancellationToken);
                 if (bidOfContractor == null)
                 {
@@ -362,7 +395,13 @@ namespace Contractors.Services
                     {
                         Id = bidOfContractor.Id,
                         RequestId = bidOfContractor.RequestId,
-                        ContractorId = bidOfContractor.ContractorId,
+                        contractor = new ContractorDetailsDto
+                        {
+                            ContractorId = bidOfContractor.ContractorId,
+                            ContractorName = bidOfContractor.Contractor.Name,
+                            ContractorAddress = bidOfContractor.Contractor.Address,
+                            ContractorPhoneNumber = bidOfContractor.Contractor.MobileNumber
+                        },
                         SuggestedFee = bidOfContractor.SuggestedFee,
                         CreatedAt = bidOfContractor.CreatedAt,
                     };
