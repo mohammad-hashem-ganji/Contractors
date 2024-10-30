@@ -15,12 +15,17 @@ namespace Contractors.Services
     public class ProjectService : IProjectService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBidOfContractorService _bidOfContractorService;
+
+        private readonly IBidOfContractorService _bidOfContactorService;
+
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ProjectService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
+        public ProjectService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IBidOfContractorService bidOfContractorService)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _bidOfContractorService = bidOfContractorService;
         }
         public async Task<Result<AddProjectDto>> AddAsync(AddProjectDto addProjectDto, CancellationToken cancellationToken)
         {
@@ -28,8 +33,10 @@ namespace Contractors.Services
             {
                 return new Result<AddProjectDto>().WithValue(null).Failure(ErrorMessages.EntityIsNull);
             }
-            try
-            {
+            try 
+            { 
+
+
                 var project = new Entites.Project
                 {
                     ContractorBidId = addProjectDto.ContractorBidId,
@@ -159,6 +166,6 @@ namespace Contractors.Services
         }
 
 
-        public async Task<Result<>>
+
     }
 }

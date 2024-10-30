@@ -6,7 +6,7 @@ namespace Contractors.Dtos
     {
         public int Id { get; set; }
         public int ContractorBidId { get; set; }
-        public int MyProperty { get; set; }
+
 
     }
 }

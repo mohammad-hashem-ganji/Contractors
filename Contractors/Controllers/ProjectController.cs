@@ -70,13 +70,13 @@ namespace ContractorsAuctioneer.Controllers
             }
         }
 
-        [Authorize(Roles = "Contractor, Client")]
-        [HttpGet]
-        [Route(nameof(GetProjectOfBid))]
-        public async Task<IActionResult> GetProject(CancellationToken cancellationToken)
-        {
+        //[Authorize(Roles = "Contractor, Client")]
+        //[HttpGet]
+        //[Route(nameof(GetProjectOfBid))]
+        //public async Task<IActionResult> GetProject(CancellationToken cancellationToken)
+        //{
 
-        }
+        //}
 
     }
 }
