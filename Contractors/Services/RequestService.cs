@@ -97,7 +97,10 @@ namespace Contractors.Services
                     CreatedBy = applicationUserResult.Data.RegisteredUserId,
                     RequestNumber = requestDto.RequestNumber,
                     IsTenderOver = false,
-                    IsDeleted = false
+                    IsDeleted = false,
+                    IsAcceptedByClient = false,
+                    IsFileCheckedByClient = false
+
                 };
 
 

@@ -72,6 +72,7 @@ namespace Contractors.Services
                     IdentityResult = result,
                     RegisteredUserId = 0,
                 };
+                _userManager.DeleteAsync(user);
                 return new Result<RegisterResultDto>()
                     .WithValue(registerResult)
                     .Failure("کاربر ساخته نشد !");
@@ -129,7 +130,8 @@ namespace Contractors.Services
                  new Claim("FirstName", user.FirstName ?? " "),
                  new Claim("LastName", user.LastName ?? " "),
 
-                 new Claim(ClaimTypes.Role,role)
+                 new Claim(ClaimTypes.Role,role),
+                 new Claim("u-role",role)
              };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));

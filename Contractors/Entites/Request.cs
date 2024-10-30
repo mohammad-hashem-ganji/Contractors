@@ -23,7 +23,7 @@ namespace Contractors.Entites
         public Region? Region { get; set; }
         public bool? IsTenderOver { get; set; }
         public bool? IsActive { get; set; }
-        public bool IsFileCheckedByClient { get; set; }
+        public bool? IsFileCheckedByClient { get; set; }
         public ICollection<FileAttachment>? FileAttachments { get; set; }
         public ICollection<RequestStatus>? RequestStatuses { get; set; }
         public ICollection<BidOfContractor>? BidOfContractors { get; set; }

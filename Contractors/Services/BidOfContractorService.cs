@@ -244,7 +244,7 @@ namespace Contractors.Services
                         .Where(x => (x.RequestId == requestId
 
                         && x.Request.IsActive == true
-                        && x.ExpireAt < DateTime.Now
+                        && (x.ExpireAt > DateTime.Now && x.ExpireAt != null)
                         && x.IsDeleted == false)
                         && (x.BidStatuses
                         .Any(b => b.Status != BidStatusEnum.BidRejectedByContractor
@@ -293,12 +293,12 @@ namespace Contractors.Services
             var contractorId = user.Data.UserId;
 
             var acceptedBids = await _context.BidOfContractors
-                .Where(b => b.ContractorId == contractorId &&
-                b.BidStatuses.Any(x => x.Status == BidStatusEnum.BidApprovedByClient))
+                .Where(b => b.ContractorId == contractorId 
+                && (b.ExpireAt > DateTime.Now && b.ExpireAt != null)
+                &&b.BidStatuses.Any(x => x.Status == BidStatusEnum.BidApprovedByClient))
                 .Include(x => x.BidStatuses)
                 .Select(x => new BidOfContractorDto
                 {
-
                     Id = x.Id,
                     SuggestedFee = x.SuggestedFee,
                     RequestId = x.RequestId,
@@ -317,9 +317,6 @@ namespace Contractors.Services
                     .Failure(ErrorMessages.BidOfContractorNotFound);
             }
         }
-
-
-
         public async Task<Result<BidOfContractorDto>> CheckBidIsAcceptedByClientAsync(int bidId, CancellationToken cancellationToken)
         {
             try
