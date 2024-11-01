@@ -62,9 +62,9 @@ namespace ContractorsAuctioneer.Controllers
         [Authorize(Roles = "Contractor")]
         [HttpGet]
         [Route(nameof(ShowRequestsToContractor))]
-        public async Task<IActionResult> ShowRequestsToContractor( CancellationToken cancellationToken)
+        public async Task<IActionResult> ShowRequestsToContractor(CancellationToken cancellationToken)
         {
-            var requests = await _requestService.GetRequestsforContractor( cancellationToken);
+            var requests = await _requestService.GetRequestsforContractor(cancellationToken);
             if (!requests.IsSuccessful)
             {
                 return Problem(requests.ErrorMessage);
@@ -84,11 +84,11 @@ namespace ContractorsAuctioneer.Controllers
             return Ok(acceptedBids);
         }
 
- 
+
         [Authorize(Roles = "Contractor")]
         [HttpPut]
         [Route(nameof(AcceptBidByContractor))]
-        public async Task<IActionResult> AcceptBidByContractor(UpdateBidAcceptanceDto bidDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> AcceptBidByContractor(UpdateBidDto bidDto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -105,8 +105,8 @@ namespace ContractorsAuctioneer.Controllers
                 if (!isAcceptedByClient.IsSuccessful)
                 {
                     return Problem(detail: isAcceptedByClient.ErrorMessage,
-                    statusCode: 400,
-                    title: "Bad Request");
+                        statusCode: StatusCodes.Status500InternalServerError,
+                        title: isAcceptedByClient.ErrorMessage);
                 }
                 var newStatus = new AddBidStatusDto
                 {
@@ -116,30 +116,34 @@ namespace ContractorsAuctioneer.Controllers
                 var newBidStatus = await _bidStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newBidStatus.IsSuccessful)
                 {
-                    return Problem(newBidStatus.Message);
+                    return Problem(detail: newBidStatus.ErrorMessage,
+                        statusCode: StatusCodes.Status500InternalServerError,
+                        title: newBidStatus.ErrorMessage);
                 }
                 else
                 {
-                    
+
                     var newProject = new AddProjectDto
                     {
-                        ContractorBidId = bidDto.BidId
+                        ContractorBidId = bid.Data.Id
                     };
                     var projectResult = await _projectService.AddAsync(newProject, cancellationToken);
                     if (!projectResult.IsSuccessful)
                     {
-                        return Problem(projectResult.Message);
+                        return Problem(detail: projectResult.ErrorMessage,
+                            statusCode: StatusCodes.Status500InternalServerError,
+                            title: projectResult.ErrorMessage);
                     }
                     return Ok(projectResult);
                 }
             }
 
-            return Problem(ErrorMessages.ErrorWhileAcceptingBid);
+            return BadRequest(ErrorMessages.ErrorWhileAcceptingBid);
         }
         [Authorize(Roles = "Contractor")]
         [HttpPut]
         [Route(nameof(RejectBidByContractor))]
-        public async Task<IActionResult> RejectBidByContractor(UpdateBidAcceptanceDto bidDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> RejectBidByContractor(UpdateBidDto bidDto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -168,10 +172,10 @@ namespace ContractorsAuctioneer.Controllers
                 {
                     return Problem(requestDto.Message);
                 }
-               
+
                 var updateRequestDto = new UpdateRequestDto
                 {
-                    ExpireAt = DateTime.Now.AddMinutes(7),   
+                    ExpireAt = DateTime.Now.AddMinutes(7),
                 };
                 var requestResult = await _requestService.UpdateAsync(updateRequestDto, cancellationToken);
                 if (!requestResult.IsSuccessful)
@@ -183,7 +187,7 @@ namespace ContractorsAuctioneer.Controllers
             }
             return BadRequest(ErrorMessages.AnErrorWhileUpdatingStatus);
         }
-        
+
         [HttpPut]
         [Route(nameof(AddContractor))]
         public async Task<IActionResult> AddContractor(AddContractorDto contractorDto, CancellationToken cancellationToken)

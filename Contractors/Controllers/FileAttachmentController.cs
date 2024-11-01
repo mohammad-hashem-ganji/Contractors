@@ -18,8 +18,8 @@ namespace ContractorsAuctioneer.Controllers
         {
             _fileAttachmentService = fileAttachmentService;
         }
-
-        [HttpPost("upload")]
+        [Authorize]
+        [HttpPost("UploadFile")]
         public async Task<IActionResult> UploadFile([FromForm] FileUploadDto model, CancellationToken cancellationToken)
         {
             var result = await _fileAttachmentService.AddAsync(model, cancellationToken);

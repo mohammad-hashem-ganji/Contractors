@@ -75,14 +75,6 @@ namespace Contractors.Services
                 {
                     return false;
                 }
-                var regionId = await _regionService.AddAsync(new Region
-                {
-                    Title = requestDto.Region.Title,
-                    ContractorSystemCode = requestDto.Region.ContractorSystemCode,
-                    CreatedAt = DateTime.Now,
-                    //CreatedBy = user.UserId,
-                    IsDeleted = false,
-                }, cancellationToken);
                 var request = new Entites.Request
                 {
                     Title = requestDto.Title,
@@ -91,7 +83,7 @@ namespace Contractors.Services
                     ConfirmationDate = requestDto.ConfirmationDate,
                     IsActive = true,
                     ExpireAt = DateTime.Now.AddDays(3),
-                    RegionId = regionId,
+                    RegionId = requestDto.RegionId,
                     ClientId = clientId,
                     CreatedAt = DateTime.Now,
                     CreatedBy = applicationUserResult.Data.RegisteredUserId,

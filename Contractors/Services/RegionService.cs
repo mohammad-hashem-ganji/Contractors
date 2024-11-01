@@ -17,17 +17,25 @@ namespace Contractors.Services
         {
             _context = context;
         }
-        public async Task<int> AddAsync(Region region, CancellationToken cancellationToken)
+        public async Task<Result<AddRegionDto>> AddAsync(AddRegionDto regionDto, CancellationToken cancellationToken)
         {
+            var region = new Region
+            {
+                CreatedAt = DateTime.Now,
+                ContractorSystemCode = regionDto.ContractorSystemCode,
+                IsDeleted = false,
+                Title = regionDto.Title,
+            };
             await _context.Regions.AddAsync(region, cancellationToken);
             var trackeNum = await _context.SaveChangesAsync(cancellationToken);
             if (trackeNum >= 1)
             {
-                return region.Id;
+                return new Result<AddRegionDto>().WithValue(regionDto).Success(SuccessMessages.RegionAdded);
             }
             else
             {
-                return 0;
+                return new Result<AddRegionDto>().WithValue(null).Failure(ErrorMessages.ErrorWhileAddingRegion);
+                
             }
         }
         public async Task<Result<RegionDto>> GetByIdAsync(int regionId, CancellationToken cancellationToken)

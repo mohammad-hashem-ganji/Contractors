@@ -31,23 +31,146 @@ namespace Contractors.Services
             {
                 return new Result<AddProjectDto>().WithValue(null).Failure(ErrorMessages.EntityIsNull);
             }
-            try 
-            { 
+
+            try
+            {
+
+                var bid = await _context.BidOfContractors
+                    .Include(b => b.Contractor)
+                    .Include(b => b.Request)
+                        .ThenInclude(r => r.Client)
+                    .FirstOrDefaultAsync(b => b.Id == addProjectDto.ContractorBidId, cancellationToken);
+
+                if (bid == null)
+                {
+                    return new Result<AddProjectDto>().WithValue(null).Failure("خطایی هنگام تعریف پروژه رخ داد.");
+                }
+
+                var contractorId = bid.ContractorId;
+                var clientId = bid.Request?.ClientId;
+
+               
+                if (contractorId == 0 || clientId == null)
+                {
+                    return new Result<AddProjectDto>().WithValue(null).Failure("خطایی هنگام تعریف پروژه رخ داد.");
+                }
 
 
                 var project = new Entites.Project
                 {
-                    ContractorBidId = addProjectDto.ContractorBidId,
+                    ContractorBidId = bid.Id,
+                    ContractorId = contractorId,
+                    ClientId = clientId.Value 
                 };
+
+                // Add and save the project
                 await _context.Projects.AddAsync(project, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
+
                 return new Result<AddProjectDto>().WithValue(addProjectDto).Success(SuccessMessages.OperationSuccessful);
             }
             catch (Exception ex)
             {
-                return new Result<AddProjectDto>().WithValue(null).Failure(ex.Message);
+                // Log the exception as needed
+                return new Result<AddProjectDto>().WithValue(null).Failure("خطایی هنگام تعریف پروژه رخ داد.");
             }
         }
+
+        //public async Task<Result<AddProjectDto>> AddAsync(AddProjectDto addProjectDto, CancellationToken cancellationToken)
+        //{
+        //    // Validate the input DTO
+        //    if (addProjectDto == null)
+        //    {
+        //        return new Result<AddProjectDto>().WithValue(null).Failure(ErrorMessages.EntityIsNull);
+        //    }
+
+        //    try
+        //    {
+        //        // Fetch the bid and associated entities
+        //        var bid = await _context.BidOfContractors
+        //            .Include(b => b.Contractor)
+        //            .Include(b => b.Request)
+        //                .ThenInclude(r => r.Client)
+        //            .FirstOrDefaultAsync(b => b.Id == addProjectDto.ContractorBidId, cancellationToken);
+
+        //        // Check if bid is found
+        //        if (bid == null)
+        //        {
+        //            return new Result<AddProjectDto>().WithValue(null).Failure("Bid not found");
+        //        }
+
+        //        // Validate contractor and client
+        //        var contractorId = bid.ContractorId;
+        //        var clientId = bid.Request?.ClientId;
+
+        //        if (contractorId == 0 || clientId == 0)
+        //        {
+        //            return new Result<AddProjectDto>().WithValue(null).Failure("Contractor or Client not found");
+        //        }
+
+        //        // Create the new project entity
+        //        var project = new Entites.Project
+        //        {
+        //            ContractorBidId = bid.Id,
+        //            ContractorId = contractorId,
+        //            ClientId = clientId
+        //        };
+
+        //        // Add and save the project
+        //        await _context.Projects.AddAsync(project, cancellationToken);
+        //        await _context.SaveChangesAsync(cancellationToken);
+
+        //        return new Result<AddProjectDto>().WithValue(addProjectDto).Success(SuccessMessages.OperationSuccessful);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception as needed
+        //        return new Result<AddProjectDto>().WithValue(null).Failure(ex.Message);
+        //    }
+        //}
+
+        //public async Task<Result<AddProjectDto>> AddAsync(AddProjectDto addProjectDto, CancellationToken cancellationToken)
+        //{
+        //    if (addProjectDto == null)
+        //    {
+        //        return new Result<AddProjectDto>().WithValue(null).Failure(ErrorMessages.EntityIsNull);
+        //    }
+
+        //    try
+        //    {
+        //        var bid = await _context.BidOfContractors
+        //            .FirstOrDefaultAsync(b => b.Id == addProjectDto.ContractorBidId, cancellationToken);
+        //        var contractor = await _context.Contractors
+        //            .FirstOrDefaultAsync(c => c.Id == bid.ContractorId, cancellationToken);
+        //        var request = await _context.Requests
+        //            .FirstOrDefaultAsync(r => r.Id == bid.RequestId, cancellationToken);
+        //        var client = await _context.Clients
+        //            .FirstOrDefaultAsync(c => c.Id == request.ClientId, cancellationToken);
+
+        //        if (contractor == null || client == null)
+        //        {
+        //            return new Result<AddProjectDto>().WithValue(null).Failure("Contractor or Client not found");
+        //        }
+
+        //        var project = new Entites.Project
+        //        {
+        //            ContractorBidId = bid.Id,
+        //            ContractorId = contractor.ApplicationUserId,
+        //            ClientId = client.ApplicationUserId
+        //        };
+
+        //        await _context.Projects.AddAsync(project, cancellationToken);
+        //        await _context.SaveChangesAsync(cancellationToken);
+
+        //        return new Result<AddProjectDto>().WithValue(addProjectDto).Success(SuccessMessages.OperationSuccessful);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new Result<AddProjectDto>().WithValue(null).Failure(ex.Message);
+        //    }
+        //}
+
+
         public async Task<Result<GetProjectDto>> GetByIdAsync(int projectId, CancellationToken cancellationToken)
         {
             try

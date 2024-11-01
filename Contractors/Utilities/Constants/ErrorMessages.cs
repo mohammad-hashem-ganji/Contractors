@@ -23,6 +23,7 @@
         public const string BidStatusNotFound = "وضعیت پیشنهاد یافت نشد";
         public const string ErroWhileRetrievingRequestStatus = "هنگام بازیابی وضعیت درخواست خطایی رخ داد";
         public const string AnErrorWhileUpdatingStatus = "پیشنهادات درخواست یافت نشد!";
+        public const string ErrorWhileAddingRegion = "خطا در افزودن منطقه";
         public const string ErrorWhileAddingRequestStatuHistory = "خطا در هنگام اضافه کردن تاریخچه وضعیت درخواست";
         public const string ErrorWhileAddingRequestStatus = "خطا در هنگام اضافه کردن وضعیت درخواست!";
         public const string ErrorWhileAddingBidStatus = "خطا در هنگام اضافه کردن وضعیت پیشنهاد!";

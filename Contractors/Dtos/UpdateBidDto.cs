@@ -1,6 +1,6 @@
 ﻿namespace Contractors.Dtos
 {
-    public class UpdateBidAcceptanceDto 
+    public class UpdateBidDto 
     {
         public int BidId { get; set; }
         public bool IsAccepted { get; set; }

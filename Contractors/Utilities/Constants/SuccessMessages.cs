@@ -6,6 +6,7 @@
         public const string Regionfound = "کاربر یافت شد";
         public const string RequestsFound = "درخواست یافت نشد";
         public const string RequestStatusAdded = "وضعیت جدید برای درخواست اضافه شد.";
+        public const string RegionAdded = "منطقه اضافه شد";
         public const string BidStatusAdded = "وضعیت جدید برای پیشنهاد اظاف شد.";
         public const string UserRegistered = "کاربر اضافه شد";
         public const string OperationSuccessful = "پیشنهاد پیمانکار با موفقیت ثبت شد";

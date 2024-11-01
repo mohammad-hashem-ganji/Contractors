@@ -6,7 +6,7 @@ namespace Contractors.Interfaces
 {
     public interface IRegionService
     {
-        Task<int> AddAsync(Region region, CancellationToken cancellationToken);
+        Task<Result<AddRegionDto>> AddAsync(AddRegionDto regionDto, CancellationToken cancellationToken);
         Task<Result<RegionDto>> GetByIdAsync(int regionId, CancellationToken cancellationToken);
     }
 }
