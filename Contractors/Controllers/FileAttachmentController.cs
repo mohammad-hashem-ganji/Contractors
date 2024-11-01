@@ -18,7 +18,7 @@ namespace ContractorsAuctioneer.Controllers
         {
             _fileAttachmentService = fileAttachmentService;
         }
-        [Authorize]
+        
         [HttpPost("UploadFile")]
         public async Task<IActionResult> UploadFile([FromForm] FileUploadDto model, CancellationToken cancellationToken)
         {
@@ -45,25 +45,25 @@ namespace ContractorsAuctioneer.Controllers
         }
         [Authorize(Roles = "Client")]
         [HttpGet]
-        [Route(nameof(DonlowdByRequestId))]
-        public async Task<IActionResult> DonlowdByRequestId(int requestId, int fileTypeId, CancellationToken cancellationToken)
+        [Route(nameof(DownloadByRequestId))]
+        public async Task<IActionResult> DownloadByRequestId(int requestId, int fileTypeId, CancellationToken cancellationToken)
         {
-            // Fetch the file attachment based on requestId and fileTypeId
-            var fileAttachment = await _fileAttachmentService.GetByRequestIdAndFileTypeAsync(requestId, (FileAttachmentType)fileTypeId, cancellationToken);
+            // Call the service method to fetch the file attachment
+            var result = await _fileAttachmentService.GetByRequestIdAndFileTypeAsync(requestId, (FileAttachmentType)fileTypeId, cancellationToken);
 
-            // Check if the file was found
-            if (fileAttachment == null || string.IsNullOrEmpty(fileAttachment.FilePath) || !System.IO.File.Exists(fileAttachment.FilePath))
+            // Check if the service returned a successful result with file data
+            if (!result.IsSuccessful || result.Data == null)
             {
-                return NotFound("File not found.");
+                return NotFound(result.ErrorMessage ?? "File not found.");
             }
 
-            // Read the file contents
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(fileAttachment.FilePath, cancellationToken);
-            var fileName = fileAttachment.FileName ?? "downloaded_file";
+            // Extract the file details from the result
+            var fileData = result.Data;
 
-            // Return the file with appropriate content type
-            return File(fileBytes, "application/octet-stream", fileName);
+            // Return the file with appropriate content type and file name
+            return File(fileData.FileContent, fileData.ContentType, fileData.FileName);
         }
+
 
     }
 }

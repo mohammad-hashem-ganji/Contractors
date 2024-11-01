@@ -119,7 +119,7 @@ namespace Contractors.Services
             }
         }
 
-        public async Task<Result<FileStreamResult>> GetFileAsync(int fileId,CancellationToken cancellationToken)
+        public async Task<Result<FileStreamResult>> GetFileAsync(int fileId, CancellationToken cancellationToken)
         {
             var fileAttachment = await _context.FileAttachments.FindAsync(fileId);
             if (fileAttachment == null)
@@ -150,11 +150,63 @@ namespace Contractors.Services
         }
 
 
-        public async Task<FileAttachment?> GetByRequestIdAndFileTypeAsync(int requestId, FileAttachmentType fileType, CancellationToken cancellationToken)
+        public async Task<Result<FileDownloadResultDto>> GetByRequestIdAndFileTypeAsync(int requestId, FileAttachmentType fileType, CancellationToken cancellationToken)
         {
-            return await _context.FileAttachments
-                .FirstOrDefaultAsync(f => f.RequestId == requestId && f.FileTypeId == (int)fileType, cancellationToken);
+            try
+            {
+                // Fetch file attachment based on request ID and file type
+                var fileAttachment = await _context.FileAttachments
+                    .AsNoTracking() // Optimization for read-only operation
+                    .FirstOrDefaultAsync(f => f.RequestId == requestId && f.FileTypeId == (int)fileType, cancellationToken);
+
+                if (fileAttachment == null)
+                {
+                    return new Result<FileDownloadResultDto>()
+                        .WithValue(null)
+                        .Failure(ErrorMessages.FileNotFound);
+                }
+
+                var filePath = fileAttachment.FilePath;
+
+                // Check if the physical file exists on disk
+                if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+                {
+                    return new Result<FileDownloadResultDto>()
+                        .WithValue(null)
+                        .Failure("File not found on the server.");
+                }
+
+                // Load the file into memory
+                var memoryStream = new MemoryStream();
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    await stream.CopyToAsync(memoryStream, cancellationToken);
+                }
+                memoryStream.Position = 0; // Reset the stream position for reading
+
+                // Get the MIME type
+                var contentType = GetContentType(filePath);
+
+                // Prepare the result with file download information
+                var downloadResult = new FileDownloadResultDto
+                {
+                    FileContent = memoryStream,
+                    FileName = fileAttachment.FileName ?? "downloaded_file",
+                    ContentType = contentType
+                };
+
+                return new Result<FileDownloadResultDto>()
+                    .WithValue(downloadResult)
+                    .Success("File found and ready for download.");
+            }
+            catch (Exception ex)
+            {
+                return new Result<FileDownloadResultDto>()
+                    .WithValue(null)
+                    .Failure($"An error occurred: {ex.Message}");
+            }
         }
+
 
         private string GetContentType(string path)
         {

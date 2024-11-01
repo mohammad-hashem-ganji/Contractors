@@ -10,6 +10,6 @@ namespace Contractors.Interfaces
         Task<Result<FileAttachmentDto>> AddAsync(FileUploadDto model, CancellationToken cancellationToken);
         Task<Result<FileStreamResult>> GetFileAsync(int fileId, CancellationToken cancellationToken);
         Task<Result<UpdateFileAttachmentDto>> UpdateAsync(UpdateFileAttachmentDto fileAttachmentDto, CancellationToken cancellationToken);
-        Task<FileAttachment?> GetByRequestIdAndFileTypeAsync(int requestId, FileAttachmentType fileType, CancellationToken cancellationToken);
+        Task<Result<FileDownloadResultDto>> GetByRequestIdAndFileTypeAsync(int requestId, FileAttachmentType fileType, CancellationToken cancellationToken);
     }
 }
