@@ -13,7 +13,6 @@
         }
         public Result<T> Success(string message)
         {
-            
             Message = message;
             IsSuccessful = true;
             return this;

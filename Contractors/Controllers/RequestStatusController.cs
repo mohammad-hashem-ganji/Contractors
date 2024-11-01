@@ -1,4 +1,5 @@
 ﻿using Contractors.Interfaces;
+using Contractors.Utilities.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,21 +8,14 @@ namespace Contractors.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RequestStatusController : ControllerBase
+    public class RequestStatusController(IRequestStatusService requestStatusService) : ControllerBase
     {
-        private readonly IRequestStatusService _requestStatusService;
-
-        public RequestStatusController(IRequestStatusService requestStatusService)
-        {
-            _requestStatusService = requestStatusService;
-        }
-
-        [Authorize(Roles = "Client")]
+        [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
-        [Route(nameof(GetStatusOfRequest))]
+        [Route("{requestId}")]
         public async Task<IActionResult> GetStatusOfRequest(int requestId, CancellationToken cancellationToken)
         {
-            var requests = await _requestStatusService.GetRequestStatusesByRequestId(requestId, cancellationToken);
+            var requests = await requestStatusService.GetRequestStatusesByRequestId(requestId, cancellationToken);
             if (requests.Data is null)
             {
                 return Ok(requests);

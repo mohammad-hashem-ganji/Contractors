@@ -126,7 +126,9 @@ namespace Contractors.Services
                    .Include(x => x.FileAttachments)
                    .Include(x => x.BidOfContractors)
                    .ToListAsync(cancellationToken);
-                var requestDtos = requests.Select(x => new RequestDto
+
+                var requestDtos = requests
+                    .Select(x => new RequestDto
                 {
                     Id = x.Id,
                     Title = x.Title,
@@ -135,19 +137,14 @@ namespace Contractors.Services
                     ConfirmationDate = x.ConfirmationDate,
                     ClientId = x.ClientId,
                     RegionTitle = x.Region.Title
-
-
-
                 }).ToList();
+
                 if (requestDtos.Any())
                 {
                     return new Result<List<RequestDto>>().WithValue(requestDtos).Success("درخواست ها یافت شدند .");
                 }
-                else
-                {
 
-                    return new Result<List<RequestDto>>().WithValue(requestDtos).Failure("درخواستی وجود ندارد");
-                }
+                return new Result<List<RequestDto>>().WithValue(requestDtos).Failure("درخواستی وجود ندارد");
             }
             catch (Exception ex)
             {
@@ -343,12 +340,11 @@ namespace Contractors.Services
         {
             try
             {
-                var appId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var appId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (!int.TryParse(appId, out var contractorId))
                 {
                     return new Result<List<RequestForShowingDetailsToContractorDto>>().WithValue(null).Failure("خطا");
                 }
-
 
                 var requests = await _context.Requests
                       .Where(r =>
@@ -373,13 +369,10 @@ namespace Contractors.Services
                         .WithValue(requests)
                         .Success("درخواست ها یافت شدند .");
                 }
-                else
-                {
 
-                    return new Result<List<RequestForShowingDetailsToContractorDto>>()
-                        .WithValue(null)
-                        .Success("درخواستی وجود ندارد");
-                }
+                return new Result<List<RequestForShowingDetailsToContractorDto>>()
+                    .WithValue(null)
+                    .Success("درخواستی وجود ندارد");
             }
             catch (Exception ex)
             {

@@ -8,50 +8,49 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Contractors.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController(IAuthService authService, IVerificationService verificationService)
+        : ControllerBase
     {
-        private readonly IAuthService _authService;
-
-        private readonly IVerificationService _verificationService;
-        public AuthenticationController(IAuthService authService, IVerificationService verificationService)
-        {
-            _authService = authService;
-            _verificationService = verificationService;
-        }
-
         [AllowAnonymous]
-        [HttpPost("Signin")]
+        [HttpPost("signin")]
         public async Task<IActionResult> Signin(LoginDto login, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var user = await _authService.AuthenticateAsync(login.NationalCode, login.PhoneNumber);
+
+            var user = await authService.AuthenticateAsync(login.NationalCode, login.PhoneNumber);
             if (user.Data == null || user.IsSuccessful == false)
             {
                 return BadRequest(user);
             }
-            var smsCode = await _verificationService
-                .GenerateAndSendCodeAsync(user.Data.Id, user.Data.PhoneNumber, CancellationToken.None);
-            if (!smsCode.IsSuccessful)
+
+            if (user.Data.PhoneNumber != null)
             {
-                return BadRequest(smsCode);
+                var smsCode = await verificationService
+                    .GenerateAndSendCodeAsync(user.Data.Id, user.Data.PhoneNumber, CancellationToken.None);
+
+                if (!smsCode.IsSuccessful)
+                {
+                    return BadRequest(smsCode);
+                }
+                return Ok(smsCode);
             }
-            return Ok(smsCode);
+
+            return BadRequest(ErrorMessages.PhoneNumberProcessingFailed);
         }
 
         [AllowAnonymous]
-        [HttpPost("VerifyTwoFactorCode")]
+        [HttpPost("2fa")]
         public async Task<IActionResult> VerifyTowFactorCode(GetVerificationCodeDto verificationCodeDto, CancellationToken cancellationToken)
         {
-            var token = await _verificationService.VerifyCodeAsync(verificationCodeDto, cancellationToken);
+            var token = await verificationService.VerifyCodeAsync(verificationCodeDto, cancellationToken);
             if (token.Data is null)
             {
                 return Unauthorized();
-
             }
 
             return Ok(token);

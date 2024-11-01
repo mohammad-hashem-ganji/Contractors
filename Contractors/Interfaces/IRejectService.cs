@@ -5,8 +5,8 @@ namespace Contractors.Interfaces
 {
     public interface IRejectService
     {
-        Task<Result<AddReasonToRejectRequestDto>> AddRjectRquestAsync(AddReasonToRejectRequestDto rejectRequestDto, CancellationToken cancellationToken);
+        Task<Result<AddReasonToRejectRequestDto>> AddRejectRequestAsync(AddReasonToRejectRequestDto rejectRequestDto, CancellationToken cancellationToken);
         Task<Result<List<GetReasonOfRejectRequestDto>>> GetReasonsOfRejectingRequestByRequestIdAsync(int requestId, CancellationToken cancellationToken);
-        Task<Result<List<GetReasonOfRejectRequestDto>>> GetReasonsOfRejectingRequestByClientAsycn(CancellationToken cancellationToken);
+        Task<Result<List<GetReasonOfRejectRequestDto>>> GetReasonsOfRejectingRequestByClientAsync(CancellationToken cancellationToken);
     }
 }

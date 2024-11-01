@@ -1,45 +1,21 @@
 ﻿using Contractors.Dtos;
 using Contractors.Interfaces;
 using Contractors.Results;
+using Contractors.Utilities.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace ContractorsAuctioneer.Controllers
+namespace Contractors.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ReasonOfRejectRequestController : ControllerBase
+    public class ReasonOfRejectRequestController(IRejectService rejectService) : ControllerBase
     {
-        private readonly IRejectService _rejectService;
-
-        public ReasonOfRejectRequestController(IRejectService rejectService)
-        {
-            _rejectService = rejectService;
-        }
-        [Authorize(Roles = "Client")]
-        [HttpPost]
-        [Route(nameof(AddRjectRquest))]
-        public async Task<IActionResult> AddRjectRquest(AddReasonToRejectRequestDto reasonDto, CancellationToken cancellationToken)
-        {
-            if (ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var addReason = await _rejectService.AddRjectRquestAsync(reasonDto, cancellationToken);
-            if (addReason.IsSuccessful)
-            {
-                return Ok(addReason);
-            }
-            else
-            {
-                return StatusCode(500, addReason);
-            }
-        }
-        [Authorize(Roles = "Client")]
+        [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
-        [Route(nameof(GetReasonsOfRejectingRequestByRequestId))]
+        [Route("{requestId}")]
         public async Task<IActionResult> GetReasonsOfRejectingRequestByRequestId(int requestId, CancellationToken cancellationToken)
         {
             if (requestId <= 0)
@@ -48,22 +24,22 @@ namespace ContractorsAuctioneer.Controllers
                     .WithValue(null)
                     .Failure("Invalid requestId"));
             }
-            var reasons = await _rejectService.GetReasonsOfRejectingRequestByRequestIdAsync(requestId, cancellationToken);
-
-            if (reasons is null || !reasons.IsSuccessful)
+            var reasons = await rejectService.GetReasonsOfRejectingRequestByRequestIdAsync(requestId, cancellationToken);
+            if (!reasons.IsSuccessful)
             {
                 return NotFound(reasons);
             }
 
             return Ok(reasons);
         }
-        [Authorize(Roles = "Client")]
+
+        [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
-        [Route(nameof(GetReasonsOfRejectingRequestByClient))]
+        [Route("")]
         public async Task<IActionResult> GetReasonsOfRejectingRequestByClient(CancellationToken cancellationToken)
         {
-            var reasons = await _rejectService.GetReasonsOfRejectingRequestByClientAsycn(cancellationToken);
-            if (reasons is null || !reasons.IsSuccessful)
+            var reasons = await rejectService.GetReasonsOfRejectingRequestByClientAsync(cancellationToken);
+            if (!reasons.IsSuccessful)
             {
                 return NotFound(reasons);
             }
