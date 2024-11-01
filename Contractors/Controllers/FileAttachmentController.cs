@@ -9,10 +9,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Contractors.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/attachments")]
     [ApiController]
     public class FileAttachmentController(IFileAttachmentService fileAttachmentService) : ControllerBase
     {
+        /// <summary>
+        /// بارگذاری فایل جدید.
+        /// </summary>
+        /// <param name="model">مدل بارگذاری فایل شامل اطلاعات فایل.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>نتیجه بارگذاری فایل یا پیام خطا در صورت شکست.</returns>
         [Authorize(Roles = $"{RoleNames.Client},{RoleNames.Contractor}")]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] FileUploadDto model, CancellationToken cancellationToken)
@@ -27,6 +33,12 @@ namespace Contractors.Controllers
             return BadRequest(result);
         }
 
+        /// <summary>
+        /// دریافت فایل بر اساس شناسه فایل.
+        /// </summary>
+        /// <param name="fileId">شناسه فایل.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>فایل درخواست شده یا پیام خطا در صورت عدم موفقیت.</returns>
         [Authorize(Roles = $"{RoleNames.Client},{RoleNames.Contractor}")]
         [HttpGet]
         [Route("{fileId}")]
@@ -40,6 +52,13 @@ namespace Contractors.Controllers
             return BadRequest(file);
         }
 
+        /// <summary>
+        /// دانلود فایل بر اساس شناسه درخواست و نوع فایل.
+        /// </summary>
+        /// <param name="requestId">شناسه درخواست.</param>
+        /// <param name="fileTypeId">نوع فایل.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>فایل دانلود شده یا پیام خطا در صورت عدم موفقیت.</returns>
         [Authorize(Roles = $"{RoleNames.Client},{RoleNames.Contractor}")]
         [HttpGet]
         [Route("{requestId}/{fileTypeId}")]

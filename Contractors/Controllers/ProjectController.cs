@@ -9,10 +9,16 @@ using Microsoft.CodeAnalysis;
 
 namespace Contractors.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/projects")]
     [ApiController]
     public class ProjectController(IProjectService projectService) : ControllerBase
     {
+        /// <summary>
+        /// دریافت جزئیات پروژه بر اساس شناسه پروژه.
+        /// </summary>
+        /// <param name="projectId">شناسه پروژه مورد نظر.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>جزئیات پروژه یا پیام خطا در صورت عدم موفقیت.</returns>
         [Authorize(Roles = $"{RoleNames.Client}, {RoleNames.Contractor}")]
         [HttpGet]
         [Route("{projectId}")]
@@ -38,14 +44,5 @@ namespace Contractors.Controllers
                     });
             }
         }
-
-        //[Authorize(Roles = "Contractor, Client")]
-        //[HttpGet]
-        //[Route(nameof(GetProjectOfBid))]
-        //public async Task<IActionResult> GetProject(CancellationToken cancellationToken)
-        //{
-
-        //}
-
     }
 }

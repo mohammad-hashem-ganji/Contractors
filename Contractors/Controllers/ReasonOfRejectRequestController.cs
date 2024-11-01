@@ -9,10 +9,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Contractors.Controllers
 {
-    [Route("api/[controller]")]
+    /// <summary>
+    /// کنترلر برای مدیریت دلایل رد درخواست‌ها.
+    /// </summary>
+    [Route("api/rejectReasons")]
     [ApiController]
     public class ReasonOfRejectRequestController(IRejectService rejectService) : ControllerBase
     {
+        /// <summary>
+        /// دریافت دلایل رد درخواست بر اساس شناسه درخواست.
+        /// </summary>
+        /// <param name="requestId">شناسه درخواست که دلایل رد آن مورد نظر است.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>لیست دلایل رد درخواست یا پیام خطا در صورت عدم موفقیت.</returns>
         [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
         [Route("{requestId}")]
@@ -33,6 +42,11 @@ namespace Contractors.Controllers
             return Ok(reasons);
         }
 
+        /// <summary>
+        /// دریافت دلایل رد درخواست‌ها برای کاربر.
+        /// </summary>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>لیست دلایل رد درخواست‌ها یا پیام خطا در صورت عدم موفقیت.</returns>
         [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
         [Route("")]

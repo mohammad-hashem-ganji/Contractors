@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace Contractors.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/contractors")]
     [ApiController]
     public class ContractorController(IContractorService contractorService)
         : ControllerBase

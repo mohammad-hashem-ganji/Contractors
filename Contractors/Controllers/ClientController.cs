@@ -17,21 +17,26 @@ namespace Contractors.Controllers
     /// <summary>
     /// کنترلر مربوط به مشتری برای مدیریت پیشنهادات و درخواست‌ها.
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/clients")]
     [ApiController]
     public class ClientController(
         IBidOfContractorService bidOfContractorService,
-        IProjectService projectService,
         IRequestService requestService,
         IRequestStatusService requestStatusService,
         IBidStatusService bidStatusService,
         IHttpContextAccessor httpContextAccessor)
         : ControllerBase
     {
+        /// <summary>
+        /// تأیید پیشنهاد از طرف مشتری.
+        /// </summary>
+        /// <param name="bidDto">مدل شامل اطلاعات پیشنهاد و وضعیت تأیید.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>پیشنهاد به‌روزشده در صورت موفقیت، یا پیام خطا در صورت شکست.</returns>
         [Authorize(Roles = RoleNames.Client)]
         [HttpPut]
         [Route("accept")]
-        [ProducesResponseType(typeof(UpdateBidOfContractorDto), StatusCodes.Status200OK)] // Successful update response
+        [ProducesResponseType(typeof(UpdateBidOfContractorDto), StatusCodes.Status200OK)] 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -77,10 +82,16 @@ namespace Contractors.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// تغییر وضعیت درخواست توسط مشتری.
+        /// </summary>
+        /// <param name="requestDto">مدل شامل شناسه درخواست و وضعیت تأیید.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>وضعیت جدید درخواست یا پیام خطا در صورت شکست.</returns>
         [Authorize(Roles = RoleNames.Client)]
         [HttpPut]
-        [Route("change-stats")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)] // No content on successful acceptance
+        [Route("change-state")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)] 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -166,10 +177,15 @@ namespace Contractors.Controllers
             //return Problem(detail: "خطا!", statusCode: 400, title: "Bad Request");
         }
 
+        /// <summary>
+        /// دریافت لیست پیشنهادات مرتبط با درخواست از طرف مشتری.
+        /// </summary>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>لیست پیشنهادات یا پیام خطا در صورت شکست.</returns>
         [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
         [Route("bids")]
-        [ProducesResponseType(typeof(Result<List<BidOfContractorDto>>), StatusCodes.Status200OK)] // Successful response with bid list
+        [ProducesResponseType(typeof(Result<List<BidOfContractorDto>>), StatusCodes.Status200OK)] 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetBidsOfRequestByClient( CancellationToken cancellationToken)

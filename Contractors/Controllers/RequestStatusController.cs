@@ -6,10 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Contractors.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/requestStatuses")]
     [ApiController]
     public class RequestStatusController(IRequestStatusService requestStatusService) : ControllerBase
     {
+        /// <summary>
+        /// دریافت وضعیت درخواست بر اساس شناسه درخواست.
+        /// </summary>
+        /// <param name="requestId">شناسه درخواست.</param>
+        /// <param name="cancellationToken">توکن لغو درخواست.</param>
+        /// <returns>وضعیت درخواست.</returns>
         [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
         [Route("{requestId}")]

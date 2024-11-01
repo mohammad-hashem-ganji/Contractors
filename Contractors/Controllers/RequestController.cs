@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Contractors.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/requests")]
     [ApiController]
     public class RequestController(
         IRequestService requestService,
@@ -18,9 +18,15 @@ namespace Contractors.Controllers
         IRejectService rejectService)
         : ControllerBase
     {
-        [Authorize(Roles = RoleNames.Admin)]
+        /// <summary>
+        /// ایجاد یک درخواست جدید.
+        /// </summary>
+        /// <param name="requestDto">شی درخواست شامل اطلاعات مورد نیاز برای ایجاد درخواست.</param>
+        /// <param name="cancellationToken">توکن لغو درخواست.</param>
+        /// <returns>نتیجه ایجاد درخواست.</returns>
+        //[Authorize(Roles = RoleNames.Admin)]
         [HttpPost]
-        [Route("create")]
+        [Route("")]
         public async Task<IActionResult> Create([FromBody] AddRequestDto requestDto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
@@ -44,7 +50,11 @@ namespace Contractors.Controllers
             }
         }
 
-
+        /// <summary>
+        /// دریافت همه درخواست‌ها.
+        /// </summary>
+        /// <param name="cancellationToken">توکن لغو درخواست.</param>
+        /// <returns>لیستی از درخواست‌ها.</returns>
         [Authorize(Roles = RoleNames.Contractor)]
         [HttpGet]
         [Route("get-all")]
@@ -72,6 +82,11 @@ namespace Contractors.Controllers
             }
         }
 
+        /// <summary>
+        /// نمایش درخواست‌های مربوط به مشتری.
+        /// </summary>
+        /// <param name="cancellationToken">توکن لغو درخواست.</param>
+        /// <returns>جزئیات درخواست مشتری.</returns>
         [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
         [Route("")]
@@ -94,6 +109,11 @@ namespace Contractors.Controllers
             return Ok(request);
         }
 
+        /// <summary>
+        /// دریافت پیشنهادات مربوط به درخواست.
+        /// </summary>
+        /// <param name="cancellationToken">توکن لغو درخواست.</param>
+        /// <returns>لیست پیشنهادات مربوط به درخواست.</returns>
         [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
         [Route("bids")]
@@ -107,6 +127,12 @@ namespace Contractors.Controllers
             return Ok(bids);
         }
 
+        /// <summary>
+        /// رد درخواست توسط مشتری.
+        /// </summary>
+        /// <param name="reasonDto">دلیل رد درخواست.</param>
+        /// <param name="cancellationToken">توکن لغو درخواست.</param>
+        /// <returns>نتیجه عملیات رد درخواست.</returns>
         [Authorize(Roles = RoleNames.Client)]
         [HttpPut]
         [Route("reject")]
@@ -125,6 +151,12 @@ namespace Contractors.Controllers
             return StatusCode(500, addReason);
         }
 
+        /// <summary>
+        /// رد درخواست توسط پیمانکار.
+        /// </summary>
+        /// <param name="rejectedRequestDto">داده‌های درخواست رد شده.</param>
+        /// <param name="cancellationToken">توکن لغو درخواست.</param>
+        /// <returns>نتیجه عملیات رد درخواست.</returns>
         [Authorize(Roles = RoleNames.Contractor)]
         [HttpPut]
         [Route("not-interested")]
