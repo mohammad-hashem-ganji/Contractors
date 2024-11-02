@@ -2,27 +2,24 @@
 
 namespace Contractors.Dtos
 {
-    /// <summary>
-    /// داده‌های ورودی برای تأیید کد احراز هویت دو مرحله‌ای.
-    /// </summary>
     public class GetVerificationCodeDto
     {
         /// <summary>
         /// کد تأیید ارسال شده به کاربر.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "کد تأیید الزامی است.")]
         public string VerificationCode { get; set; }
 
         /// <summary>
         /// کد ملی کاربر.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "کد ملی الزامی است.")]
         public string Nationalcode { get; set; }
 
         /// <summary>
         /// شماره تلفن کاربر.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "شماره تلفن الزامی است.")]
         public string PhoneNumber { get; set; }
     }
 }

@@ -33,5 +33,6 @@
         public const string ErrorWhileAcceptingBid = "خطا هنگام تایید پیشنهاد.";
         public const string NationalCodeAndPhoneNumberDoesMatch = "شماره موبایل با کد ملی ثبت شده مطابقت ندارد";
         public const string NationalCodeOrPhoneNumberAreWrong = "کد ملی یا شماره همراه اشتباه است";
+        public const string PhoneNumberProcessingFailed = "مشکل در پردازش شماره موبایل";
     }
 }

@@ -11,25 +11,14 @@ using System.Security.Claims;
 
 namespace Contractors.Services
 {
-    public class RejectService : IRejectService
+    public class RejectService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
+        : IRejectService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public RejectService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
-        {
-            _context = context;
-            _httpContextAccessor = httpContextAccessor;
-        }
-        public async Task<Result<AddReasonToRejectRequestDto>> AddRjectRquestAsync(AddReasonToRejectRequestDto rejectRequestDto, CancellationToken cancellationToken)
+        public async Task<Result<AddReasonToRejectRequestDto>> AddRejectRequestAsync(AddReasonToRejectRequestDto rejectRequestDto, CancellationToken cancellationToken)
         {
             try
             {
-                if (rejectRequestDto is null)
-                {
-                    return new Result<AddReasonToRejectRequestDto>().WithValue(null).Failure("ورودی نامعتبر");
-                }
-                var isAppUserIdConvert = int.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out int appUserId);
+                var isAppUserIdConvert = int.TryParse(httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out int appUserId);
                 if (!isAppUserIdConvert)
                 {
                     return new Result<AddReasonToRejectRequestDto>().WithValue(null).Failure("خطا");
@@ -43,8 +32,8 @@ namespace Contractors.Services
                     CreatedAt = DateTime.Now,
                     CreatedBy = appUserId
                 };
-                await _context.Rejects.AddAsync(rejectRequest, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
+                await context.Rejects.AddAsync(rejectRequest, cancellationToken);
+                await context.SaveChangesAsync(cancellationToken);
                 return new Result<AddReasonToRejectRequestDto>().WithValue(rejectRequestDto).Success("دلیل رد پروژه ثبت شد.");
             }
             catch (Exception)
@@ -52,8 +41,6 @@ namespace Contractors.Services
 
                 return new Result<AddReasonToRejectRequestDto>().WithValue(null).Failure("خطا");
             }
-
-
         }
 
 
@@ -61,7 +48,7 @@ namespace Contractors.Services
         {
             try
             {
-                var reason = await _context.Rejects
+                var reason = await context.Rejects
                 .Where(x => x.RequestId == requestId)
                 .ToListAsync(cancellationToken);
                 if (reason is null)
@@ -88,19 +75,19 @@ namespace Contractors.Services
         }
 
 
-        public async Task<Result<List<GetReasonOfRejectRequestDto>>> GetReasonsOfRejectingRequestByClientAsycn(CancellationToken cancellationToken)
+        public async Task<Result<List<GetReasonOfRejectRequestDto>>> GetReasonsOfRejectingRequestByClientAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var isAppUserIdConvert = int.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out int appUserId);
+                var isAppUserIdConvert = int.TryParse(httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out int appUserId);
                 if (!isAppUserIdConvert)
                 {
                     return new Result<List<GetReasonOfRejectRequestDto>>().WithValue(null).Failure("خطا");
                 }
-                var reason = await _context.Rejects
+                var reason = await context.Rejects
                     .Where(x => x.UserId == appUserId)
                     .ToListAsync(cancellationToken);
-                if (reason is null)
+                if (!reason.Any())
                 {
                     return new Result<List<GetReasonOfRejectRequestDto>>().WithValue(null).Success("دلیلی پیدا نشد.");
                 }

@@ -39,7 +39,7 @@ namespace Contractors.Services
                 }
                 else
                 {
-                    bool isconverted = int.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
+                    bool isconverted = int.TryParse(_httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
                 }
 
 

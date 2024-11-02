@@ -1,27 +1,27 @@
 ﻿using Contractors.Interfaces;
+using Contractors.Utilities.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Contractors.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/requestStatuses")]
     [ApiController]
-    public class RequestStatusController : ControllerBase
+    public class RequestStatusController(IRequestStatusService requestStatusService) : ControllerBase
     {
-        private readonly IRequestStatusService _requestStatusService;
-
-        public RequestStatusController(IRequestStatusService requestStatusService)
-        {
-            _requestStatusService = requestStatusService;
-        }
-
-        [Authorize(Roles = "Client")]
+        /// <summary>
+        /// دریافت وضعیت درخواست بر اساس شناسه درخواست.
+        /// </summary>
+        /// <param name="requestId">شناسه درخواست.</param>
+        /// <param name="cancellationToken">توکن لغو درخواست.</param>
+        /// <returns>وضعیت درخواست.</returns>
+        [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
-        [Route(nameof(GetStatusOfRequest))]
+        [Route("{requestId}")]
         public async Task<IActionResult> GetStatusOfRequest(int requestId, CancellationToken cancellationToken)
         {
-            var requests = await _requestStatusService.GetRequestStatusesByRequestId(requestId, cancellationToken);
+            var requests = await requestStatusService.GetRequestStatusesByRequestId(requestId, cancellationToken);
             if (requests.Data is null)
             {
                 return Ok(requests);

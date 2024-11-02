@@ -41,18 +41,12 @@ namespace Contractors.Services
         }
         public async Task<bool> AddAsync(AddRequestDto requestDto, CancellationToken cancellationToken)
         {
-            string role = "Client";
+            const string role = RoleNames.Client;
 
-            if (requestDto == null)
-            {
-                // log
-                return false;
-            }
             try
             {
-
-                var applicationUserResult = await _authService.RegisterAsync(requestDto.NCode, requestDto.PhoneNumber, role);
-                if (applicationUserResult.Data.RegisteredUserId == 0)
+                var applicationUserResult = await _authService.RegisterAsync(requestDto.NCode, requestDto.PhoneNumber, role,requestDto.RequestNumber);
+                if (applicationUserResult.Data?.RegisteredUserId == 0)
                 {
                     return false;
                 }
@@ -118,7 +112,9 @@ namespace Contractors.Services
                    .Include(x => x.FileAttachments)
                    .Include(x => x.BidOfContractors)
                    .ToListAsync(cancellationToken);
-                var requestDtos = requests.Select(x => new RequestDto
+
+                var requestDtos = requests
+                    .Select(x => new RequestDto
                 {
                     Id = x.Id,
                     Title = x.Title,
@@ -127,19 +123,14 @@ namespace Contractors.Services
                     ConfirmationDate = x.ConfirmationDate,
                     ClientId = x.ClientId,
                     RegionTitle = x.Region.Title
-
-
-
                 }).ToList();
+
                 if (requestDtos.Any())
                 {
                     return new Result<List<RequestDto>>().WithValue(requestDtos).Success("درخواست ها یافت شدند .");
                 }
-                else
-                {
 
-                    return new Result<List<RequestDto>>().WithValue(requestDtos).Failure("درخواستی وجود ندارد");
-                }
+                return new Result<List<RequestDto>>().WithValue(requestDtos).Failure("درخواستی وجود ندارد");
             }
             catch (Exception ex)
             {
@@ -230,9 +221,6 @@ namespace Contractors.Services
                        ClientId = x.ClientId,
                        RegionTitle = x.Region.Title,
                        RequestNumber = x.RequestNumber,
-
-
-
                    }).FirstOrDefaultAsync(cancellationToken);
                 var requestStatusResult = await _context.RequestStatuses.Where(rs => rs.CreatedBy == appUserId).ToListAsync(cancellationToken);
                 if (requestResult is not null)
@@ -335,12 +323,11 @@ namespace Contractors.Services
         {
             try
             {
-                var appId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var appId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (!int.TryParse(appId, out var contractorId))
                 {
                     return new Result<List<RequestForShowingDetailsToContractorDto>>().WithValue(null).Failure("خطا");
                 }
-
 
                 var requests = await _context.Requests
                       .Where(r =>
@@ -365,13 +352,10 @@ namespace Contractors.Services
                         .WithValue(requests)
                         .Success("درخواست ها یافت شدند .");
                 }
-                else
-                {
 
-                    return new Result<List<RequestForShowingDetailsToContractorDto>>()
-                        .WithValue(null)
-                        .Success("درخواستی وجود ندارد");
-                }
+                return new Result<List<RequestForShowingDetailsToContractorDto>>()
+                    .WithValue(null)
+                    .Success("درخواستی وجود ندارد");
             }
             catch (Exception ex)
             {

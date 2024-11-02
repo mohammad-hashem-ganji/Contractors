@@ -17,48 +17,26 @@ namespace Contractors.Controllers
     /// <summary>
     /// کنترلر مربوط به مشتری برای مدیریت پیشنهادات و درخواست‌ها.
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/clients")]
     [ApiController]
-    public class ClientController : ControllerBase
+    public class ClientController(
+        IBidOfContractorService bidOfContractorService,
+        IRequestService requestService,
+        IRequestStatusService requestStatusService,
+        IBidStatusService bidStatusService,
+        IHttpContextAccessor httpContextAccessor)
+        : ControllerBase
     {
-        private readonly IBidOfContractorService _bidOfContractorService;
-        private readonly IProjectService _projectService;
-        private readonly IRequestService _requestService;
-        private readonly IRequestStatusService _requestStatusService;
-        private readonly IBidStatusService _bidStatusService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         /// <summary>
-        /// سازنده کنترلر مشتری.
+        /// تأیید پیشنهاد از طرف مشتری.
         /// </summary>
-        /// <param name="bidOfContractorService">سرویسی برای مدیریت پیشنهادات پیمانکار.</param>
-        /// <param name="projectService">سرویسی برای مدیریت پروژه‌ها.</param>
-        /// <param name="requestService">سرویسی برای مدیریت درخواست‌ها.</param>
-        /// <param name="requestStatusService">سرویسی برای مدیریت وضعیت درخواست‌ها.</param>
-        /// <param name="bidStatusService">سرویسی برای مدیریت وضعیت پیشنهادات.</param>
-        /// <param name="httpContextAccessor">دستیار برای دسترسی به زمینه HTTP.</param>
-        public ClientController(IBidOfContractorService bidOfContractorService, IProjectService projectService,
-            IRequestService requestService, IRequestStatusService requestStatusService, IBidStatusService bidStatusService,
-            IHttpContextAccessor httpContextAccessor)
-        {
-            _bidOfContractorService = bidOfContractorService;
-            _projectService = projectService;
-            _requestService = requestService;
-            _requestStatusService = requestStatusService;
-            _bidStatusService = bidStatusService;
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        /// <summary>
-        /// تایید پیشنهاد توسط مشتری.
-        /// </summary>
-        /// <param name="bidDto">مدل اطلاعات پیشنهاد برای تایید.</param>
-        /// <param name="cancellationToken">توکن برای لغو درخواست در صورت نیاز.</param>
-        /// <returns>در صورت موفقیت، اطلاعات پیشنهاد تایید شده.</returns>
-        [Authorize(Roles = "Client")]
+        /// <param name="bidDto">مدل شامل اطلاعات پیشنهاد و وضعیت تأیید.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>پیشنهاد به‌روزشده در صورت موفقیت، یا پیام خطا در صورت شکست.</returns>
+        [Authorize(Roles = RoleNames.Client)]
         [HttpPut]
-        [Route(nameof(AcceptBidByClient))]
-        [ProducesResponseType(typeof(UpdateBidOfContractorDto), StatusCodes.Status200OK)] // Successful update response
+        [Route("accept")]
+        [ProducesResponseType(typeof(UpdateBidOfContractorDto), StatusCodes.Status200OK)] 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -69,7 +47,7 @@ namespace Contractors.Controllers
                 return BadRequest(ModelState);
             }
 
-            var bid = await _bidOfContractorService.GetByIdAsync(bidDto.Id, cancellationToken);
+            var bid = await bidOfContractorService.GetByIdAsync(bidDto.Id, cancellationToken);
             if (!bid.IsSuccessful)
             {
                 return NotFound(bid);
@@ -82,7 +60,7 @@ namespace Contractors.Controllers
                     BidOfContractorId = bid.Data.Id,
                     Status = Entites.BidStatusEnum.BidApprovedByClient,
                 };
-                var newBidStatus = await _bidStatusService.AddAsync(newStatus, cancellationToken);
+                var newBidStatus = await bidStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newBidStatus.IsSuccessful)
                 {
                     return Problem(newBidStatus.Message);
@@ -93,7 +71,7 @@ namespace Contractors.Controllers
                     ExpireAt = bid.Data.ExpireAt,
                     BidId = bid.Data.Id,
                 };
-                var updatedBid = await _bidOfContractorService.UpdateAsync(updatecontract, cancellationToken);
+                var updatedBid = await bidOfContractorService.UpdateAsync(updatecontract, cancellationToken);
                 if (!updatedBid.IsSuccessful)
                 {
                     return Problem(updatedBid.Message);
@@ -105,15 +83,15 @@ namespace Contractors.Controllers
         }
 
         /// <summary>
-        /// تایید درخواست توسط مشتری.
+        /// تغییر وضعیت درخواست توسط مشتری.
         /// </summary>
-        /// <param name="requestDto">مدل اطلاعات درخواست برای تایید.</param>
-        /// <param name="cancellationToken">توکن برای لغو درخواست در صورت نیاز.</param>
-        /// <returns>در صورت موفقیت، هیچ محتوایی بازگشت نمی‌دهد.</returns>
-        [Authorize(Roles = "Client")]
+        /// <param name="requestDto">مدل شامل شناسه درخواست و وضعیت تأیید.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>وضعیت جدید درخواست یا پیام خطا در صورت شکست.</returns>
+        [Authorize(Roles = RoleNames.Client)]
         [HttpPut]
-        [Route(nameof(ChangeRequestStatus))]
-        [ProducesResponseType(StatusCodes.Status204NoContent)] // No content on successful acceptance
+        [Route("change-state")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)] 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -125,20 +103,24 @@ namespace Contractors.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var appId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var appId = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (!int.TryParse(appId, out var userId))
             {
                 return Problem(detail: "خطا!", statusCode: 500, title: "Bad Request");
             }
-            var request = await _requestService.CheckRequestOfClientAsync(cancellationToken);
+            var request = await requestService.CheckRequestOfClientAsync(cancellationToken);
             if (!request.IsSuccessful || request.Data == null)
             {
-                return Ok(request);
+                return NotFound("درخواست مورد نظر منقضی یا از دسترس خارج شده است.");
             }
-            if (requestDto.RequestId != request.Data.Id && request.Data.IsActive == false) return NotFound(request);
 
-            if (requestDto.IsAccepted == true)
+            if (requestDto.RequestId != request.Data.Id || request.Data.IsActive == false)
+            {
+                return NotFound();
+            }
+
+            if (requestDto.IsAccepted)
             {
                 newStatus = new AddRequestStatusDto
                 {
@@ -146,8 +128,11 @@ namespace Contractors.Controllers
                     Status = Entites.RequestStatusEnum.RequestApprovedByClient
                 };
 
-                newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
-                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
+                newRequestStatus = await requestStatusService.AddAsync(newStatus, cancellationToken);
+                if (!newRequestStatus.IsSuccessful)
+                {
+                    return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
+                }
 
                 var updateRequestDto = new UpdateRequestDto
                 {
@@ -156,7 +141,7 @@ namespace Contractors.Controllers
                     ExpireAt = DateTime.Now.AddMinutes(7),
                     IsAcceptedByClient = true
                 };
-                var updateResult = await _requestService.UpdateAsync(updateRequestDto, cancellationToken);
+                var updateResult = await requestService.UpdateAsync(updateRequestDto, cancellationToken);
                 if (!updateResult.IsSuccessful)
                 {
                     return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: "Internal Server Error");
@@ -167,8 +152,11 @@ namespace Contractors.Controllers
                     Status = Entites.RequestStatusEnum.RequestIsInTenderphase
                 };
 
-                newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
-                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
+                newRequestStatus = await requestStatusService.AddAsync(newStatus, cancellationToken);
+                if (!newRequestStatus.IsSuccessful)
+                {
+                    return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
+                }
                 return Ok(requestDto);
             }
             else
@@ -179,7 +167,7 @@ namespace Contractors.Controllers
                     Status = Entites.RequestStatusEnum.RequestRejectedByClient
                 };
    
-                newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
+                newRequestStatus = await requestStatusService.AddAsync(newStatus, cancellationToken);
                 if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage,
                     statusCode: 400, title : newRequestStatus.ErrorMessage);
                 var updateRequestDto = new UpdateRequestDto
@@ -188,7 +176,7 @@ namespace Contractors.Controllers
                     ExpireAt = null,
                     IsAcceptedByClient = false
                 };
-                var updateResult = await _requestService.UpdateAsync(updateRequestDto, cancellationToken);
+                var updateResult = await requestService.UpdateAsync(updateRequestDto, cancellationToken);
                 if (!updateResult.IsSuccessful)
                 {
                     return Problem(detail: updateResult.ErrorMessage, statusCode: 500, title: updateResult.ErrorMessage);
@@ -200,91 +188,24 @@ namespace Contractors.Controllers
         }
 
         /// <summary>
-        /// رد درخواست توسط مشتری.
+        /// دریافت لیست پیشنهادات مرتبط با درخواست از طرف مشتری.
         /// </summary>
-        /// <param name="requestDto">مدل اطلاعات درخواست برای رد.</param>
-        /// <param name="cancellationToken">توکن برای لغو درخواست در صورت نیاز.</param>
-        /// <returns>در صورت موفقیت، هیچ محتوایی بازگشت نمی‌دهد.</returns>
-        //[Authorize(Roles = "Client")]
-        //[HttpPut]
-        //[Route(nameof(RejectingRequestByClient))]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)] // No content on successful rejection
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<IActionResult> RejectingRequestByClient([FromBody] UpdateRequestAcceptanceDto requestDto, CancellationToken cancellationToken)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    var request = await _requestService.CheckRequestOfClientAsync(cancellationToken);
-        //    if (!request.IsSuccessful || request.Data == null) return Problem(detail: request.ErrorMessage,
-        //        statusCode: 400, title: "Bad Request");
-        //    if (requestDto.IsAccepted == false)
-        //    {
-        //        var newStatus = new AddRequestStatusDto
-        //        {
-        //            RequestId = requestDto.RequestId,
-        //            Status = Entites.RequestStatusEnum.RequestRejectedByClient
-        //        };
-        //        var newRequestStatus = await _requestStatusService.AddAsync(newStatus, cancellationToken);
-        //        if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage,
-        //            statusCode: 400, title: "Bad Request");
-        //        return Ok();
-        //    }
-
-        //    return BadRequest("مقادیر ورودی نا معتبر است");
-        //}
-
-        /// <summary>
-        /// دریافت پیشنهادات مرتبط با درخواست مشتری.
-        /// </summary>
-        /// <param name="requestId">شناسه درخواست.</param>
-        /// <param name="cancellationToken">توکن برای لغو درخواست در صورت نیاز.</param>
-        /// <returns>در صورت موفقیت، لیستی از پیشنهادات مرتبط با درخواست.</returns>
-        [Authorize(Roles = "Client")]
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>لیست پیشنهادات یا پیام خطا در صورت شکست.</returns>
+        [Authorize(Roles = RoleNames.Client)]
         [HttpGet]
-        [Route(nameof(GetBidsOfRequestByClient))]
-        [ProducesResponseType(typeof(Result<List<BidOfContractorDto>>), StatusCodes.Status200OK)] // Successful response with bid list
+        [Route("bids")]
+        [ProducesResponseType(typeof(Result<List<BidOfContractorDto>>), StatusCodes.Status200OK)] 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetBidsOfRequestByClient( CancellationToken cancellationToken)
         {
-            var bidsOfRequest = await _bidOfContractorService.GetBidsOfRequestAsync(cancellationToken);
+            var bidsOfRequest = await bidOfContractorService.GetBidsOfRequestAsync(cancellationToken);
             if (!bidsOfRequest.IsSuccessful)
             {
                 return Problem(bidsOfRequest.Message);
             }
             return Ok(bidsOfRequest);
-        }
-
-        /// <summary>
-        /// نمایش درخواست مشتری.
-        /// </summary>
-        /// <param name="cancellationToken">توکن برای لغو درخواست در صورت نیاز.</param>
-        /// <returns>در صورت موفقیت، اطلاعات درخواست مشتری.</returns>
-        [Authorize(Roles = "Client")]
-        [HttpGet]
-        [Route(nameof(ShowRequestOfClient))]
-        [ProducesResponseType(typeof(RequestDto), StatusCodes.Status200OK)] // Successful response with request details
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ShowRequestOfClient(CancellationToken cancellationToken)
-        {
-            var request = await _requestService.GetRequestOfClientAsync(cancellationToken);
-
-            if (!request.IsSuccessful)
-            {
-                return BadRequest(request);
-            }
-            var requestIsChecked = await _requestService.CheckRequestOfClientAsync(cancellationToken);
-            if (!requestIsChecked.IsSuccessful || request.Data == null)
-            {
-                return Problem(detail: request.ErrorMessage, statusCode: 500, title: "Bad Request");
-            }
-            return Ok(request);
         }
     }
 

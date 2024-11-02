@@ -2,27 +2,28 @@
 using Contractors.Entites;
 using Contractors.Interfaces;
 using Contractors.Services;
+using Contractors.Utilities.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ContractorsAuctioneer.Controllers
+namespace Contractors.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/attachments")]
     [ApiController]
-    public class FileAttachmentController : ControllerBase
+    public class FileAttachmentController(IFileAttachmentService fileAttachmentService) : ControllerBase
     {
-        private readonly IFileAttachmentService _fileAttachmentService;
-
-        public FileAttachmentController(IFileAttachmentService fileAttachmentService)
-        {
-            _fileAttachmentService = fileAttachmentService;
-        }
-        
-        [HttpPost("UploadFile")]
+        /// <summary>
+        /// بارگذاری فایل جدید.
+        /// </summary>
+        /// <param name="model">مدل بارگذاری فایل شامل اطلاعات فایل.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>نتیجه بارگذاری فایل یا پیام خطا در صورت شکست.</returns>
+        [Authorize(Roles = $"{RoleNames.Client},{RoleNames.Contractor}")]
+        [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] FileUploadDto model, CancellationToken cancellationToken)
         {
-            var result = await _fileAttachmentService.AddAsync(model, cancellationToken);
+            var result = await fileAttachmentService.AddAsync(model, cancellationToken);
 
             if (result.IsSuccessful)
             {
@@ -31,25 +32,40 @@ namespace ContractorsAuctioneer.Controllers
 
             return BadRequest(result);
         }
-        [Authorize(Roles = "Client")]
+
+        /// <summary>
+        /// دریافت فایل بر اساس شناسه فایل.
+        /// </summary>
+        /// <param name="fileId">شناسه فایل.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>فایل درخواست شده یا پیام خطا در صورت عدم موفقیت.</returns>
+        [Authorize(Roles = $"{RoleNames.Client},{RoleNames.Contractor}")]
         [HttpGet]
-        [Route(nameof(GetFile))]
+        [Route("{fileId}")]
         public async Task<IActionResult> GetFile(int fileId, CancellationToken cancellationToken)
         {
-            var file = await _fileAttachmentService.GetFileAsync(fileId, cancellationToken);
+            var file = await fileAttachmentService.GetFileAsync(fileId, cancellationToken);
             if (file.IsSuccessful)
             {
                 return Ok(file);
             }
             return BadRequest(file);
         }
-        [Authorize(Roles = "Client")]
+
+        /// <summary>
+        /// دانلود فایل بر اساس شناسه درخواست و نوع فایل.
+        /// </summary>
+        /// <param name="requestId">شناسه درخواست.</param>
+        /// <param name="fileTypeId">نوع فایل.</param>
+        /// <param name="cancellationToken">توکن برای لغو عملیات در صورت نیاز.</param>
+        /// <returns>فایل دانلود شده یا پیام خطا در صورت عدم موفقیت.</returns>
+        [Authorize(Roles = $"{RoleNames.Client},{RoleNames.Contractor}")]
         [HttpGet]
-        [Route(nameof(DownloadByRequestId))]
+        [Route("{requestId}/{fileTypeId}")]
         public async Task<IActionResult> DownloadByRequestId(int requestId, int fileTypeId, CancellationToken cancellationToken)
         {
-            // Call the service method to fetch the file attachment
-            var result = await _fileAttachmentService.GetByRequestIdAndFileTypeAsync(requestId, (FileAttachmentType)fileTypeId, cancellationToken);
+            // Fetch the file attachment based on requestId and fileTypeId
+            var fileAttachment = await fileAttachmentService.GetByRequestIdAndFileTypeAsync(requestId, (FileAttachmentType)fileTypeId, cancellationToken);
 
             // Check if the service returned a successful result with file data
             if (!result.IsSuccessful || result.Data == null)

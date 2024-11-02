@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Contractors.Utilities.Helpers;
 
 namespace Contractors.Services
 {
@@ -36,10 +37,11 @@ namespace Contractors.Services
             _configuration = configuration;
             _jwtSettings = jwtSettings;
         }
-        public async Task<Result<ApplicationUser>> AuthenticateAsync(string nCode, string phoneNumber)
+        public async Task<Result<ApplicationUser>> AuthenticateAsync(string nCode, string phoneNumber, string requestNo = "")
         {
-            const string key = "ParsianContractorAuthenearproject";
-            var user = await _userManager.FindByNameAsync(string.Concat(nCode, key));
+            var userName = UsernameHelper.CreateFullUserName(nCode, requestNo);
+
+            var user = await _userManager.FindByNameAsync(userName);
 
             if (user == null || user.PhoneNumber != phoneNumber)
             {
@@ -53,13 +55,13 @@ namespace Contractors.Services
                 .Success("کاربر پیدا شد.");
         }
 
-        public async Task<Result<RegisterResultDto>> RegisterAsync(string nCode, string phoneNumber, string role)
+        public async Task<Result<RegisterResultDto>> RegisterAsync(string nCode, string phoneNumber, string role, string requestNo = "")
         {
-            const string key = "ParsianContractorAuthenearproject";
+            var userName = UsernameHelper.CreateFullUserName(nCode, requestNo);
 
             var user = new ApplicationUser
             {
-                UserName = string.Concat(nCode, key),
+                UserName = userName,
                 PhoneNumber = phoneNumber
             };
 
@@ -72,7 +74,7 @@ namespace Contractors.Services
                     IdentityResult = result,
                     RegisteredUserId = 0,
                 };
-                _userManager.DeleteAsync(user);
+                await _userManager.DeleteAsync(user);
                 return new Result<RegisterResultDto>()
                     .WithValue(registerResult)
                     .Failure("کاربر ساخته نشد !");
