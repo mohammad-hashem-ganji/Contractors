@@ -112,11 +112,15 @@ namespace Contractors.Controllers
             var request = await requestService.CheckRequestOfClientAsync(cancellationToken);
             if (!request.IsSuccessful || request.Data == null)
             {
-                return Ok(request);
+                return NotFound("درخواست مورد نظر منقضی یا از دسترس خارج شده است.");
             }
-            if (requestDto.RequestId != request.Data.Id && request.Data.IsActive == false) return NotFound(request);
 
-            if (requestDto.IsAccepted == true)
+            if (requestDto.RequestId != request.Data.Id || request.Data.IsActive == false)
+            {
+                return NotFound();
+            }
+
+            if (requestDto.IsAccepted)
             {
                 newStatus = new AddRequestStatusDto
                 {
@@ -125,7 +129,10 @@ namespace Contractors.Controllers
                 };
 
                 newRequestStatus = await requestStatusService.AddAsync(newStatus, cancellationToken);
-                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
+                if (!newRequestStatus.IsSuccessful)
+                {
+                    return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
+                }
 
                 var updateRequestDto = new UpdateRequestDto
                 {
@@ -146,7 +153,10 @@ namespace Contractors.Controllers
                 };
 
                 newRequestStatus = await requestStatusService.AddAsync(newStatus, cancellationToken);
-                if (!newRequestStatus.IsSuccessful) return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
+                if (!newRequestStatus.IsSuccessful)
+                {
+                    return Problem(detail: newRequestStatus.ErrorMessage, statusCode: 500, title: newRequestStatus.ErrorMessage);
+                }
                 return Ok(requestDto);
             }
             else
