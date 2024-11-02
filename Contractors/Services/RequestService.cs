@@ -41,18 +41,12 @@ namespace Contractors.Services
         }
         public async Task<bool> AddAsync(AddRequestDto requestDto, CancellationToken cancellationToken)
         {
-            string role = "Client";
+            const string role = RoleNames.Client;
 
-            if (requestDto == null)
-            {
-                // log
-                return false;
-            }
             try
             {
-
-                var applicationUserResult = await _authService.RegisterAsync(requestDto.NCode, requestDto.PhoneNumber, role);
-                if (applicationUserResult.Data.RegisteredUserId == 0)
+                var applicationUserResult = await _authService.RegisterAsync(requestDto.NCode, requestDto.PhoneNumber, role,requestDto.RequestNumber);
+                if (applicationUserResult.Data?.RegisteredUserId == 0)
                 {
                     return false;
                 }
@@ -235,9 +229,6 @@ namespace Contractors.Services
                        ClientId = x.ClientId,
                        RegionTitle = x.Region.Title,
                        RequestNumber = x.RequestNumber,
-
-
-
                    }).FirstOrDefaultAsync(cancellationToken);
                 var requestStatusResult = await _context.RequestStatuses.Where(rs => rs.CreatedBy == appUserId).ToListAsync(cancellationToken);
                 if (requestResult is not null)

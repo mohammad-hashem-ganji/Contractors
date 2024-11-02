@@ -37,7 +37,7 @@ namespace Contractors.Services
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user != null)
             {
-                const string key = "ParsianContractorAuthenearproject";
+                const string key = "P$@r";
                 string userName = user.UserName;
                 if (userName.EndsWith(key))
                 {

@@ -7,6 +7,7 @@ using ContractorsAuctioneer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -15,6 +16,8 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddTransient<DatabaseInitializer>();
 
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<IVerificationService, VerificationService>();
@@ -41,6 +44,10 @@ builder.Services.AddScoped<IFileAttachmentService, FileAttachmentService>();
 builder.Services.AddTransient<ILastLoginHistoryService, LastLoginHistoryService>();
 // Reject
 builder.Services.AddTransient<IRejectService, RejectService>();
+
+
+
+
 //----------------------------------------------------------------
 
 builder.Services.AddControllers();
@@ -141,6 +148,9 @@ var app = builder.Build();
 // Seed the database with users and roles
 using (var scope = app.Services.CreateScope())
 {
+    var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+    await initializer.InitializeAsync();
+
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
