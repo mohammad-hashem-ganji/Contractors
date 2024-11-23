@@ -65,7 +65,7 @@ namespace Contractors.Controllers
         public async Task<IActionResult> DownloadByRequestId(int requestId, int fileTypeId, CancellationToken cancellationToken)
         {
             // Fetch the file attachment based on requestId and fileTypeId
-            var fileAttachment = await fileAttachmentService.GetByRequestIdAndFileTypeAsync(requestId, (FileAttachmentType)fileTypeId, cancellationToken);
+            var result = await fileAttachmentService.GetByRequestIdAndFileTypeAsync(requestId, (FileAttachmentType)fileTypeId, cancellationToken);
 
             // Check if the service returned a successful result with file data
             if (!result.IsSuccessful || result.Data == null)
@@ -79,7 +79,5 @@ namespace Contractors.Controllers
             // Return the file with appropriate content type and file name
             return File(fileData.FileContent, fileData.ContentType, fileData.FileName);
         }
-
-
     }
 }
