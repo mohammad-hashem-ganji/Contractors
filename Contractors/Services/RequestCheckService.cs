@@ -42,7 +42,7 @@ namespace ContractorsAuctioneer.Services
                         r.RequestStatuses != null && r.RequestStatuses
                         .Any(x => x.Status == RequestStatusEnum.RequestRejectedByClient))
                         .ToArrayAsync(stoppingToken);
-                    var a = " ";
+                    
                     var requestsAfterTenderExpieredAndAcceptedByClient = await dbContext.Requests
                         .Where(r => r.ExpireAt.HasValue
                         && r.ExpireAt <= DateTime.Now
