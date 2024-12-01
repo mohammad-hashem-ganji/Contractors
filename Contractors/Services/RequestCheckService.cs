@@ -95,7 +95,7 @@ namespace ContractorsAuctioneer.Services
                             .AddAsync(new AddRequestStatusDto
                             {
                                 RequestId = request.Id,
-                                Status = RequestStatusEnum.TimeForCheckingBidForClientExpired,
+                                Status = RequestStatusEnum.TimeForCheckingRequestForClientExpiredAndRequestIsAccepted,
                                 CreatedBy = 100
                             }, stoppingToken);
                         if (tenderOver.IsSuccessful)
@@ -128,7 +128,7 @@ namespace ContractorsAuctioneer.Services
                             .AddAsync(new AddRequestStatusDto
                             {
                                 RequestId = request.Id,
-                                Status = RequestStatusEnum.TimeForCheckingBidForClientExpired,
+                                Status = RequestStatusEnum.TimeForCheckingRequestForClientExpired,
                                 CreatedBy = 100
                             }, stoppingToken);
                         if (tenderOver.IsSuccessful)

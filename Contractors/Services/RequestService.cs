@@ -225,7 +225,7 @@ namespace Contractors.Services
                 var requestStatusResult = await _context.RequestStatuses.Where(rs => rs.CreatedBy == appUserId).ToListAsync(cancellationToken);
                 if (requestResult is not null)
                 {
-                    if (requestResult.ExpireAt > DateTime.Now)
+                    if ( !requestStatusResult.Any(rs => rs.Status == RequestStatusEnum.TimeForCheckingRequestForClientExpired))
                     {
                         if (requestStatusResult.Any(rs => rs.Status == RequestStatusEnum.RequestApprovedByClient
                                                                  || rs.Status == RequestStatusEnum.RequestRejectedByClient))

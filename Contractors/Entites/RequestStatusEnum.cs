@@ -13,9 +13,10 @@ namespace Contractors.Entites
         Rejected = 2,       // The request has been rejected
         RequestRejectedByClient = 3,
         RequestRejectedByContractor = 4,
-        RequestTenderFinished =5,
+        TimeForCheckingRequestForClientExpiredAndRequestIsAccepted = 5, //
         TimeForCheckingBidForClientExpired =6,
         RequestIsInTenderphase = 7,
+        TimeForCheckingRequestForClientExpired =8,
 
     }
 }
